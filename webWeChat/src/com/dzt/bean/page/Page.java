@@ -2,6 +2,10 @@ package com.dzt.bean.page;
 
 import java.util.List;
 
+/**
+ * 分页对象
+ * @param <T>
+ */
 public class Page<T> {
     private Integer currentPage;
     private Integer totalPages;

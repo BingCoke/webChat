@@ -3,6 +3,10 @@ package com.dzt.bean.selectBean;
 /**
  * @author Z
  */
+
+/**
+ * 用户评论的包装
+ */
 public class Commenter {
     private Integer id;
     private Integer userId;

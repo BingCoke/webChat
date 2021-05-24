@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 
 /**
  * @author Z
+ * 朋友圈的包装
  */
 public class Publisher {
     private Integer userId;

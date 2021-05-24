@@ -17,6 +17,7 @@ import java.util.Map;
 
 /**
  * @author Z
+ * 历史消息的分页
  */
 public class MessagePageBuilder extends PageBulider<MessagePageBuilder>{
     private MessageDao messageDao = DaoFacory.getWebChatDao(MessageDao.class);

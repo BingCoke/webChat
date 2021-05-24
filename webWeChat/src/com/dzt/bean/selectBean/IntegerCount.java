@@ -3,6 +3,10 @@ package com.dzt.bean.selectBean;
 /**
  * @author Z
  */
+
+/**
+ * 搜索数量用的对象
+ */
 public class IntegerCount {
     private Integer count;
 

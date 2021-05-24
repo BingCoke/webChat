@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 群搜索的分页
+ */
 public class GroupPageBuilder extends PageBulider<GroupPageBuilder> {
     private UserGroupDao userGroupDao = DaoFacory.getWebChatDao(UserGroupDao.class);
     @Override

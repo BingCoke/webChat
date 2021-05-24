@@ -6,6 +6,7 @@ import java.sql.Timestamp;
 /**
  * @author Z
  */
+
 public class Sender {
     private Integer userId;
     private String name;

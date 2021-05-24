@@ -5,6 +5,10 @@ import com.dzt.entity.User;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 页建造
+ * @param <T>
+ */
 public abstract class PageBulider<T> {
     private Page page;
 

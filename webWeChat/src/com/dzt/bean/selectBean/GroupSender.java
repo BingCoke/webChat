@@ -5,6 +5,10 @@ import javax.persistence.criteria.CriteriaBuilder;
 /**
  * @author Z
  */
+
+/**
+ * 群消息的包装
+ */
 public class GroupSender {
     private Integer fromId;
     private String vest;

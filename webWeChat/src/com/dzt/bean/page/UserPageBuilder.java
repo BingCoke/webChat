@@ -9,6 +9,7 @@ import java.util.Map;
 
 /**
  * @author Z
+ * 用户搜索的包装
  */
 public class UserPageBuilder extends PageBulider<UserPageBuilder> {
     private UserDao userDao = DaoFacory.getWebChatDao(UserDao.class);

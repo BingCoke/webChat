@@ -4,6 +4,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 
 /**
  * @author Z
+ * 好友的包装
  */
 public class MyFriend {
     private Integer id;

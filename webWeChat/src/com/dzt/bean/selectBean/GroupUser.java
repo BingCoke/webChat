@@ -5,6 +5,10 @@ import javax.persistence.criteria.CriteriaBuilder;
 /**
  * @author Z
  */
+
+/**
+ * 群成员的包装
+ */
 public class GroupUser {
     private Integer userId;
     private String vest;

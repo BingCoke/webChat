@@ -12,6 +12,7 @@ import java.util.Map;
 
 /**
  * @author Z
+ * 朋友圈的分页
  */
 public class MomentPageBuilder extends PageBulider<MomentPageBuilder> {
     private MomentDao momentDao = DaoFacory.getWebChatDao(MomentDao.class);
