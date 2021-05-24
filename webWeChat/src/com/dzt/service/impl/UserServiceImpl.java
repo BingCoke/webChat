@@ -93,10 +93,10 @@ public class UserServiceImpl implements UserService {
             //保证文件名字不会重复
             fileName = UUID.randomUUID() +"_"+ profile.getSubmittedFileName();
             //创建文件夹
-            File file = new File("Z:/img/"+ prePath);
+            File file = new File("./img/"+ prePath);
             file.mkdirs();
             //把头像拷贝到指定的文件夹
-            outputStream = new FileOutputStream( "Z:/img/"+ prePath + fileName);
+            outputStream = new FileOutputStream( "./img/"+ prePath + fileName);
             byte[] buf = new byte[512];
             int len = 0;
             while ((len = inputStream.read(buf)) != -1){
@@ -220,10 +220,10 @@ public class UserServiceImpl implements UserService {
             //保证文件名字不会重复
             fileName = UUID.randomUUID() +"_"+ part.getSubmittedFileName();
             //创建文件夹
-            File file = new File("Z:/img/"+ prePath);
+            File file = new File("./img/"+ prePath);
             file.mkdirs();
             //把头像拷贝到指定的文件夹
-            outputStream = new FileOutputStream( "Z:/img/"+ prePath + fileName);
+            outputStream = new FileOutputStream( "./img/"+ prePath + fileName);
             byte[] buf = new byte[512];
             int len = 0;
             while ((len = inputStream.read(buf)) != -1){
@@ -250,10 +250,10 @@ public class UserServiceImpl implements UserService {
             //保证文件名字不会重复
             fileName = UUID.randomUUID() +"_"+ part.getSubmittedFileName();
             //创建文件夹
-            File file = new File("Z:/file/"+ prePath);
+            File file = new File("./file/"+ prePath);
             file.mkdirs();
             //把头像拷贝到指定的文件夹
-            outputStream = new FileOutputStream( "Z:/file/"+ prePath + fileName);
+            outputStream = new FileOutputStream( "./file/"+ prePath + fileName);
             byte[] buf = new byte[512];
             int len = 0;
             while ((len = inputStream.read(buf)) != -1){

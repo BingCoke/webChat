@@ -24,6 +24,7 @@ import org.junit.Test;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
+import java.io.File;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -220,4 +221,6 @@ public class SercideTest {
         MessageDao messageDao = DaoFacory.getWebChatDao(MessageDao.class);
         messageDao.getGroupMessage(5,0,10);
     }
+
+
 }
