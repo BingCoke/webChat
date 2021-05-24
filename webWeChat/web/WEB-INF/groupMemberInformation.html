@@ -1,0 +1,132 @@
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>群成员信息</title>
+    <link rel="stylesheet" href="../static/layui/css/layui.css">
+</head>
+
+<body>
+    <input type="text" id="vest" maxlength="10" name="vest" required lay-verify="required" autocomplete="off"
+        class="layui-input"><button id="updateVest">更改</button><br>
+    名字 <p id="name"></p><br>
+    <span id="powerSpan"></span>
+    <span id="span"></span>
+    <button id="delete" >踢出去！</button>
+
+
+
+
+
+    <script type="text/javascript" src="../static/js/my.js"></script>
+    <script src="../static/layui/layui.js"></script>
+    <script src="../static/js/jquery.js"></script>
+    <script>
+        $.get("/group/getGroupMemberInformation", function (res) {
+            $("#name").text(res.data.name)
+            $("#vest").val(res.data.vest)
+            $("#name").attr("data",JSON.stringify(res.data))
+            $("#updateVest").click(function() {
+                var data = JSON.parse($("#name").attr("data")) 
+                data.vest = $("#vest").val()
+                $.post("/group/updateVest",data,function(res) {
+                    layer.msg(res.msg)
+                })
+            })
+
+            $("#delete").click(function () {
+                var data = JSON.parse($("#name").attr("data")) 
+                $.post("/group/deleteMember",data,function(res) {
+                    layer.msg(res.msg)
+                })
+            })
+
+
+            if (res.data.power == 1) {
+                $("#span").append(
+                    '<button id="toMute" >禁言</button>' +
+                    '<form style="display: none;" id="mute" class="layui-form" action="">' +
+                    '<div class="layui-form-item">' +
+                    '<label class="layui-form-label">请填写要禁言的时间</label>' +
+                    '<div class="layui-input-block">' +
+                    '<input type="text" id="date">' +
+                    '</div>' +
+                    '</div>' +
+                    '<button type="button" id="sub" >提交禁言</button>' +
+                    '</form>'
+                )
+                $("#toMute").click(function () {
+                    var show = $('#mute').css('display');
+                    $("#mute").css('display', (show == 'block' ? 'none' : 'block'))
+                })
+                layui.use('laydate', function () {
+                    var laydate = layui.laydate;
+                    //执行一个laydate实例
+                    var i = laydate.render({
+                        elem: '#date' 
+                        , type: 'time'
+                    });
+                    $("#sub").click(function () {
+
+                        if (i.config.dateTime != undefined || (i.config.dateTime.hours != 0 && i.config.dateTime.minutes != 0 && i.config.dateTime.seconds != 0)){
+                            var data = JSON.parse($("#name").attr("data")) 
+                            data.hours = i.config.dateTime.hours
+                            data.minutes = i.config.dateTime.minutes
+                            data.seconds = i.config.dateTime.seconds
+                            $.post("/group/mute",data,function (res) {
+                                layer.msg(res.msg)
+                            })
+                        } else {
+                            layer.msg("请先选择时间")
+                        }
+                    })
+                });
+
+                $("#powerSpan").append(
+                    '职位 <button id="power">群成员</button>点击更改职位<br>'
+                )
+
+            } else if (res.data.power == 0){
+                $("#span").append(
+                    '<button id="removeMute" >解除禁言</button>'
+                )
+                $("#removeMute").click(function(){
+                    $.get("/group/removeMute",function (res) {
+                        layer.msg(res.msg)
+                        window.close();
+                    })
+                })
+            } else if(res.data.power == 2){
+                $("#powerSpan").append(
+                    '职位 <button id="power">管理</button>点击更改职位<br>'
+                )
+            }
+
+            $("#power").click(function() {
+                var data = JSON.parse($("#name").attr("data")) 
+                $.post("/group/updatePower",data,function(res) {
+                    layer.msg(res.msg)
+                })
+                if($(this).text() == "管理"){
+                    $(this).text("群成员")
+                    data.power == 1;
+                } else {
+                    $(this).text("管理")
+                    data.power == 2;
+                }
+                $("#name").attr("data",data)
+            
+            })
+
+
+
+        })
+
+
+    </script>
+</body>
+
+</html>

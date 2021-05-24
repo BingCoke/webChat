@@ -1,0 +1,6 @@
+<mapper namespace="com.dzt.dao.UnLookDao" entity="com.dzt.entity.UnLook">
+
+    <delete id="removeByMomentId">
+        DELETE from un_look where moment_id = ?
+    </delete>
+</mapper>

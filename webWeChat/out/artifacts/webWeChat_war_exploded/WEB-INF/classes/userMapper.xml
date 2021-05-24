@@ -1,0 +1,27 @@
+<mapper namespace="com.dzt.dao.UserDao" entity="com.dzt.entity.User">
+    <update id="saveProfile" >
+        update user set profile=? where username=?
+    </update>
+    <update id="updateInformation" >
+        update user set name=?,gender=?,phone=? where id=?
+    </update>
+    <update id="updateMail" >
+        update user set mail=? where id=?
+    </update>
+    <update id="updatePassword" >
+        update user set password=? where id=?
+    </update>
+    <update id="saveBack" >
+        update user set back=? where id=?
+    </update>
+    <update id="updatePower">
+        update user set power=? where id=?
+    </update>
+    <select id="getMyFriend" resultType="com.dzt.bean.selectBean.MyFriend">
+        SELECT * from
+        (SELECT  id user_id,profile,name from user) u
+        RIGHT  JOIN
+        (SELECT id,to_id,remark,black from person_relationship WHERE from_id = ?) p
+        on p.to_id = u.user_id
+    </select>
+</mapper>

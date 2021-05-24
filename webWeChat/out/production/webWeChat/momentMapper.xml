@@ -1,0 +1,58 @@
+<mapper namespace="com.dzt.dao.MomentDao" entity="com.dzt.entity.Moment">
+
+    <select id="getFriendsMoment" resultType="com.dzt.bean.selectBean.Publisher">
+        select * from
+        moment m
+        join
+        (
+        SELECT * from (
+        SELECT to_id,remark from person_relationship where from_id = ?
+        UNION
+        SELECT id to_id,name remark from user where id = ?
+        ) pr
+        JOIN
+        (SELECT id u_id,profile from user) u
+        on pr.to_id = u.u_id
+        ) p
+        on p.to_id = m.user_id
+        WHERE id not in
+        (SELECT moment_id from un_look WHERE user_id = ?)
+        ORDER BY time  DESC LIMIT ?,?
+    </select>
+    <select id="getFriendsMomentCount" resultType="com.dzt.bean.selectBean.LongCount">
+        select count(*) count from
+        moment m
+        join
+        (
+        SELECT * from (
+        SELECT to_id,remark from person_relationship where from_id = ?
+        UNION
+        SELECT id to_id,name remark from user where id = ?
+        ) pr
+        JOIN
+        (SELECT id u_id,profile from user) u
+        on pr.to_id = u.u_id
+        ) p
+        on p.to_id = m.user_id
+        WHERE id not in
+        (SELECT moment_id from un_look WHERE user_id = ?)
+    </select>
+
+    <select id="getUserMoment" resultType="com.dzt.bean.selectBean.Publisher">
+        SELECT
+        *
+        FROM
+        moment m
+        JOIN ( SELECT id u_id,profile,name remark FROM USER where id=? ) u
+        on u.u_id = m.user_id
+        LIMIT ?,?
+    </select>
+    <select id="getUserMomentCount" resultType="com.dzt.bean.selectBean.LongCount">
+        SELECT
+        count(*) count
+        FROM
+        moment m
+        JOIN ( SELECT id u_id, PROFILE FROM USER where id=? ) u
+        on u.u_id = m.user_id
+    </select>
+</mapper>

@@ -1,0 +1,17 @@
+<mapper namespace="com.dzt.dao.PersonRelationshipDao" entity="com.dzt.entity.PersonRelationship">
+    <select id="relationShipCount" resultType="com.dzt.bean.selectBean.LongCount">
+        select count(*) count from person_relationship where from_id=? and to_id=?
+    </select>
+
+    <select id="selectByFromTo" resultType="com.dzt.entity.PersonRelationship">
+        select * from person_relationship where from_id=? and to_id=?
+    </select>
+    <update id="updateBlack">
+        update person_relationship set black=? where id=?
+    </update>
+    <update id="updateRemark">
+        update person_relationship set remark=? where id=?
+    </update>
+
+
+</mapper>

@@ -1,0 +1,22 @@
+<mapper namespace="com.dzt.dao.CommentDao" entity="com.dzt.entity.Comment">
+    <delete id="removeByMomentId">
+        DELETE from comment where moment_id = ?
+    </delete>
+    //得到这条评论用户的名字，头像，如果有上级评论得到上级评论的用户的名字
+    <select id="getMomentComment" resultType="com.dzt.bean.selectBean.Commenter">
+        SELECT * from
+        (
+        SELECT * from
+        ( SELECT * from comment  WHERE  moment_id=? ) cd
+        left JOIN
+        (SELECT id up_id1,user_id up_user_id from `comment` ) cu
+        on cd.up_id = cu.up_id1
+        ) cm
+        JOIN
+        (SELECT id user_id,name user_name,profile  from user) um
+        on cm.user_id = um.user_id
+        left JOIN
+        (SELECT id up_user_id,name up_user_name from user) up
+        on cm.up_user_id = up.up_user_id
+    </select>
+</mapper>

@@ -1,0 +1,91 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>查看好友</title>
+    <link rel="stylesheet" href="/static/layui/css/layui.css">
+</head>
+
+<body>
+    <img class="layui-nav-img" width="150" id="profile"><br>
+    备注<input class="layui-input" maxlength="10" id="remark">
+    <button id="updateRemark" class="layui-btn layui-btn-sm layui-btn-radius layui-btn-danger">修改备注</button><br>
+    名字<p class="layui-text" id="name"></p><br>
+    <button class="layui-btn layui-btn-sm layui-btn-radius layui-btn-danger" id="black"></button><br>
+    <button id="report" class="layui-btn layui-btn-sm">举报</button><br>
+    <button id="delete" class="layui-btn layui-btn-sm">删除好友</button>
+
+    <p id="beBlack"></p>
+    <script type="text/javascript" src="../../static/js/my.js"></script>
+    <script src="/static/layui/layui.js"></script>
+    <script src="/static/js/jquery.js"></script>
+    <script>
+
+
+
+        $.get("/friend/getInformation", function (res) {
+            var myFriend = res.myFriend
+            $("#profile").attr("src", "/img/" + myFriend.profile)
+            $("#remark").val(myFriend.remark)
+            $("#name").text(myFriend.name)
+            if (myFriend.black == 1) {
+                $("#black").text("取消拉黑")
+                $("#black").click(black1)
+            } else {
+                $("#black").text("拉黑")
+                $("#black").click(black0)
+            }
+
+            if (res.black == 1) {
+                $("#beBlack").text("你已被拉黑")
+            } else {
+                $("#beBlack").text("")
+            }
+            $("#report").click(function () {
+                location.href = "/user/toReport?id=" + myFriend.userId
+            })
+        })
+
+
+        $("#delete").click(function () {
+            layer.confirm('确定吗', { icon: 3, title: '确认' }, function (index) {
+                $.get("/friend/delete", function (res) {
+                    layer.msg(res.msg)
+                })
+            });
+
+        })
+
+        $("#updateRemark").click(function () {
+            $.get("/friend/updateRemark?remark=" + $("#remark").val(), function (res) {
+                layer.msg(res.msg)
+            })
+        })
+
+
+
+        function black1() {
+            layer.confirm('确定吗', { icon: 3, title: '确认' }, function (index) {
+                $("#black").text("拉黑")
+                $("#black").click(black0)
+                $.get("/friend/black?black=1", function (res) {
+                    layer.msg(res.msg)
+                })
+            });
+        }
+
+        function black0() {
+            layer.confirm('确定吗', { icon: 3, title: '确认' }, function (index) {
+                $("#black").text("取消拉黑")
+                $("#black").click(black1)
+                $.get("/friend/black?black=0", function (res) {
+                    layer.msg(res.msg)
+                })
+            });
+        }
+    </script>
+</body>
+
+</html>

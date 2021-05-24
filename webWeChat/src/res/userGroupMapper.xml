@@ -1,0 +1,6 @@
+<mapper namespace="com.dzt.dao.UserGroupDao" entity="com.dzt.entity.UserGroup">
+
+    <select id="getGroupByUser">
+        SELECT * from user_group WHERE id in(SELECT group_id from group_member WHERE user_id=?)
+    </select>
+</mapper>

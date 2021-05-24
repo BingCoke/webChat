@@ -1,0 +1,7 @@
+asm-9.1,cglib.jar用来动态代理的jar包
+codec,md5加密
+dbutils,dom4j 读取xml文件
+javaee websocket的jar
+Javax-mail 发送邮箱
+servlet-api servlet的jar包
+connector MySQL的驱动

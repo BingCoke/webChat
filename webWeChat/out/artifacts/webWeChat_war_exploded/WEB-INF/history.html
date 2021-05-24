@@ -1,0 +1,188 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>历史记录</title>
+    <link rel="stylesheet" href="../static/layui/css/layui.css">
+    <link rel="stylesheet" href="../static/css/chat.css">
+</head>
+
+<body>
+    <div id="chatDiv" style="width: 1042;height: 450;border-style:solid;OVERFLOW-Y: auto;overflow:auto; ">
+    </div>
+
+    <p id="nowTotalPages"></p>
+    当前页 : <input type="text" id="nowCurrentPage" value="1"><button id="change">改变</button><br>
+    <button id="lastPage">上一页</button>
+    <button id="nextPage">下一页</button>
+
+    <form style="display: none" id="putForm">
+        <input name="currentPage" id="currentPage" value="1">
+        <input name="dataSize" id="dataSize" value="10">
+        <input name="totalPages" id="totalPages" value="">
+        <input name="totalDateSize" id="totalDateSize" value="">
+        <input name="" id="select" value="">
+    </form>
+    <script type="text/javascript" src="../static/js/my.js"></script>
+    <script src="../static/layui/layui.js"></script>
+    <script src="../static/js/jquery.js"></script>
+    <script>
+        var user = JSON.parse(sessionStorage.getItem('user'))
+        $("#chatDiv").css("background-image", 'url("/img/' + user.back + '")')
+        function pageFunction(type) {
+            if (type == "lastPage") {
+                $("#currentPage").val(parseInt($("#currentPage").val()) == 1 ? 1 : parseInt($("#currentPage").val()) - 1)
+            } else if (type == "nextPage") {
+                $("#currentPage").val((parseInt($("#currentPage").val()) == parseInt($("#totalPages").val()) ? parseInt($("#totalPages").val()) : parseInt($("#currentPage").val()) + 1))
+            } else if (type == "search") {
+                if (isEmpty($("#name").val()) || isEmpty($("#startPrice").val()) || isEmpty($("#endPrice"))) {
+                    $("#currentPage").val("1");
+                }
+            }
+
+            $.post("/message/getHistoryMessage", $("#putForm").serialize(), function (data) {
+                var mtype = data.mtype
+                var id = data.id
+                var myFriend
+                if (mtype == 1) {
+                    myFriend = data.friend
+                }
+                $("#chatDiv").empty()
+                if (data.code == 200) {
+                    for (let i = 0; i < data.data.data.length; i++) {
+                        var msg = data.data.data[i]
+                        var content;
+                        if (msg.status == 0) {
+                            content = msg.content
+                        } else if (msg.status == 1) {
+                            content = '<a href="' + msg.content + '" download="' + msg.fileName + '">' + msg.fileName + '</a>'
+                        }
+                        if (mtype == 2) {
+                            if (msg.fromId == user.id) {
+                                $("#chatDiv").append(
+                                    '<div class="chat-receiver">' +
+                                    '<div><img src="/img/' + user.profile + '"></div>' +
+                                    '<div>' + user.name + '</div>' +
+                                    '<div>' +
+                                    '<div class="chat-right_triangle"></div>' +
+                                    '<span>' + content + '</span>' +
+                                    '</div>' +
+                                    '</div>'
+                                )
+                            } else {
+                                $("#chatDiv").append(
+                                    '<div class="chat-sender">' +
+                                    '<div><img src="/img/' + msg.profile + '"></div>' +
+                                    '<div>' + msg.vest + '</div>' +
+                                    '<div>' +
+                                    '<div class="chat-left_triangle"></div>' +
+                                    '<span>' + content + '</span>' +
+                                    '</div>' +
+                                    '</div>'
+                                )
+                            }
+                        } else if (mtype == 1) {
+
+                            if (msg.status == 2) {
+                                $.ajax({
+                                    type: "GET",
+                                    url: "/user/selectUser?id=" + msg.content,
+                                    success: function (res) {
+                                        content = '<div class="layui-panel" id="friendCard' + msg.id + '" ><div style="padding: 30px;">' +
+                                            '<img src="/img/' + res.data.profile + '" id="profile" class="layui-nav-img">' +
+                                            res.data.name +
+                                            '<hr>' +
+                                            "点击申请好友" +
+                                            '</div></div>'
+                                    },
+                                    async: false
+                                });
+                            }
+                            if (msg.fromId == user.id) {
+                                $("#chatDiv").append(
+                                    '<div class="chat-receiver">' +
+                                    '<div><img src="/img/' + user.profile + '" ></div>' +
+                                    '<div>' + user.name + '</div>' +
+                                    '<div>' +
+                                    '<div class="chat-right_triangle"></div>' +
+                                    '<span>' + content + '</span>' +
+                                    '</div>' +
+                                    '</div>'
+                                )
+                            } else {
+                                $("#chatDiv").append(
+                                    '<div class="chat-sender">' +
+                                    '<div><img src="/img/' + myFriend.profile + '"></div>' +
+                                    '<div>' + myFriend.name + '</div>' +
+                                    '<div style="max-width: 500px;">' +
+                                    '<div class="chat-left_triangle"></div>' +
+                                    '<span>' + content + '</span>' +
+                                    '</div>' +
+                                    '</div>'
+                                )
+                            }
+                            if (msg.status == 2) {
+                                $("#friendCard" + msg.id).attr("theId", msg.content)
+                                $("#friendCard" + msg.id).click(function () {
+                                   layer.msg("历史记录添加不了喔")
+                                })
+                            }
+
+                        }
+                    }
+
+                    $("#currentPage").val(data.data.currentPage)
+                    $("#dataSize").val(data.data.dataSize)
+                    $("#totalPages").val(data.data.totalPages)
+                    $("#totalDateSize").val(data.data.totalDateSize)
+
+                    $("#nowTotalPages").text($("#totalPages").val())
+                    $("#nowDataSize").text($("#dataSize").val())
+                    $("#nowCurrentPage").val($("#currentPage").val())
+
+                } else {
+                    $("#chatDiv").empty()
+                }
+
+            })
+        };
+
+
+        $("#findByUsername").click(function () {
+            $("#select").attr("name", "username")
+            $("#select").val($("#findUser").val())
+            $("#currentPage").val("1");
+            pageFunction()
+        })
+        $("#findByName").click(function () {
+            $("#select").attr("name", "name")
+            $("#select").val($("#findUser").val())
+            $("#currentPage").val("1");
+            pageFunction()
+        })
+
+
+        $("#lastPage").click(function () {
+            pageFunction("lastPage")
+        })
+
+        $("#nextPage").click(function () {
+            pageFunction("nextPage")
+        })
+
+        $("#change").click(function () {
+            if (isNaN($("#nowCurrentPage").val()) && isNaN($("#nowDataSize").val())) {
+                alert("请输入正确的信息")
+            } else {
+                $("#currentPage").val($("#nowCurrentPage").val())
+                $("#dataSize").val($("#nowDataSize").text())
+            }
+            pageFunction("")
+        })
+        pageFunction("")
+    </script>
+</body>
+
+</html>

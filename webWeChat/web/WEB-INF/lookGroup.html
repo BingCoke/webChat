@@ -1,0 +1,163 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../static/layui/css/layui.css">
+</head>
+
+<body>
+
+    <span id="group"></span><br>
+    <span id="announcement" style="width: 200;height: 200px;;">u</span>
+
+    <table class="layui-table">
+        <thead>
+            <tr>
+                <th></th>
+                <th>群名称</th>
+                <th>原名</th>
+                <th>职位</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody id="groupMembers">
+
+        </tbody>
+    </table>
+
+
+
+    <script type="text/javascript" src="../static/js/my.js"></script>
+    <script src="../static/layui/layui.js"></script>
+    <script src="../static/js/jquery.js"></script>
+
+    <script>
+
+        var groupAuthorities;
+        getGroupAuthorities()
+
+
+
+
+        $.get("/group/getLookGroupInformation", function (res) {
+
+            if (groupAuthorities[res.group.id + ""] == 2 || groupAuthorities[res.group.id + ""] == 3) {
+                $("#group").append(
+                    '<input type="text" id="groupName" maxlength="10" name="groupName" required lay-verify="required" autocomplete="off" class="layui-input"><br>' +
+                    '<button type="button" id="updateGroupName" class="layui-btn">修改群名</button>'
+                )
+            }
+
+            $.get("/group/getAnnouncement", function (res1) {
+                if (groupAuthorities[res.group.id + ""] == 3 || groupAuthorities[res.group.id + ""] == 2) {
+                    $("#announcement").append(
+                        "<textarea id='announcementArea'>" + res1.data + "</textarea>" +
+                        '<button type="button" id="updateAnnouncement" class="layui-btn">修改公告</button>'
+                    )
+                    $("#updateAnnouncement").click(function (params) {
+                        var s = $("#announcementArea").val()
+                        $.get("/group/removeAnnouncement?announcement=" + s, function (res) {
+                            layer.msg(res.msg)
+                        })
+                    })
+                } else {
+                    $("#announcement").append(
+                        "<div>" + res1.data + "</div>"
+                    )
+                }
+            })
+
+
+            $('title').html(res.group.name)
+            $("#groupName").val(res.group.name)
+
+            $("#updateGroupName").click(function () {
+
+                if ($("#groupName").val() != "") {
+                    $.get("/group/updateName?name=" + $("#groupName").val(), function (res) {
+                        layer.msg(res.msg)
+                    })
+                } else {
+                    layer.msg("不能输入空群名哦")
+                }
+
+            })
+
+            for (var i = 0; i < res.groupMember.length; i++) {
+                if (res.groupMember[i].power == 3) {
+                    $("#groupMembers").append(
+                        "<tr>" +
+                        "<td>" + '<img src="/img/' + res.groupMember[i].profile + '" id="profile" class="layui-nav-img">' + "</td>" +
+                        "<td>" + res.groupMember[i].vest + "</td>" +
+                        "<td>" + res.groupMember[i].name + "</td>" +
+                        "<td>群主</td>" +
+                        "</tr>"
+                    )
+                    break;
+                }
+            }
+
+            for (var i = 0; i < res.groupMember.length; i++) {
+                if (res.groupMember[i].power == 2) {
+                    var str = "";
+                    str = str + "<tr>" +
+                        "<td>" + '<img src="/img/' + res.groupMember[i].profile + '" class="layui-nav-img">' + "</td>" +
+                        "<td>" + res.groupMember[i].vest + "</td>" +
+                        "<td>" + res.groupMember[i].name + "</td>" +
+                        "<td>管理</td>"
+
+                    if (groupAuthorities[res.group.id + ""] == 3) {
+                        str = str + "<td>" + "<button class='layui-btn layui-btn-xs' id='groupMember" + res.groupMember[i].userId + "'>操作</button>" + "</td>"
+                    }
+                    str = str + "</tr>";
+                    $("#groupMembers").append(str)
+
+                    if (groupAuthorities[res.group.id + ""] == 3) {
+
+                        $("#groupMember" + res.groupMember[i].userId).attr("data", JSON.stringify(res.groupMember[i]))
+
+                        $("#groupMember" + res.groupMember[i].userId).click(function () {
+                            $.post("/group/groupMemberInformation", JSON.parse($(this).attr("data")), function () {
+                                location.href = "/group/toUpdateMember"
+                            })
+                        })
+
+                    }
+                }
+            }
+
+            for (var i = 0; i < res.groupMember.length; i++) {
+                if (res.groupMember[i].power <= 1) {
+                    var str = "";
+                    str = str +
+                        "<tr>" +
+                        "<td>" + '<img src="/img/' + res.groupMember[i].profile + '"  class="layui-nav-img">' + "</td>" +
+                        "<td>" + res.groupMember[i].vest + "</td>" +
+                        "<td>" + res.groupMember[i].name + "</td>" +
+                        "<td>群成员</td>"
+                    if (groupAuthorities[res.group.id + ""] == 2 || groupAuthorities[res.group.id + ""] == 3) {
+                        str = str + "<td>" + "<button class='layui-btn layui-btn-xs' id='groupMember" + res.groupMember[i].userId + "' >操作</button>" + "</td>"
+                    }
+                    str = str + "</tr>"
+                    $("#groupMembers").append(str)
+
+                    if (groupAuthorities[res.group.id + ""] == 2 || groupAuthorities[res.group.id + ""] == 3) {
+                        $("#groupMember" + res.groupMember[i].userId).attr("data", JSON.stringify(res.groupMember[i]))
+
+                        $("#groupMember" + res.groupMember[i].userId).click(function () {
+                            $.post("/group/groupMemberInformation", JSON.parse($(this).attr("data")), function () {
+                                location.href = "/group/toUpdateMember"
+                            })
+                        })
+
+                    }
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>

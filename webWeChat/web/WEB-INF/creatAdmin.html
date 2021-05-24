@@ -1,0 +1,81 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>创建管理员</title>
+</head>
+
+<body>
+
+    <form id="register" onsubmit="return submitForm()">
+        用户名：<input type="text" name="username" id="username" required value=""><span id="usernameJudge"></span><br>
+        密码：<input type="password" name="password" id="password" required><br>
+        再次输入密码: <input type="password" name="passwordAgain" id="passwordAgain" required><span
+            id="passwordJudge"></span><br>
+        <input type="submit" value="提交">
+    </form>
+    <script src="../static/js/jquery.js"></script>
+    <script src="../static/layui/layui.js"></script>
+    <script>
+        var isHave;
+        const username = document.getElementById("username")
+        username.addEventListener("blur", function () {
+            if (document.getElementById("username").value === "") {
+                return
+            }
+            if (/[a-zA-Z0-9_]{5,15}$/.test(username.value) == false) {
+                document.getElementById("usernameJudge").innerText = "用户名只能字母数字下划线！5-15位"
+            } else {
+                var url = "/admin/checkUser?username=" + username.value
+                $.get(url, function (data) {
+                    console.log(data)
+                    document.getElementById("usernameJudge").innerText = data.msg
+                    isHave = data.isHave
+                })
+            }
+        })
+
+
+
+        // 密码的校验
+        const password = document.getElementById("password")
+        const passwordAgain = document.getElementById("passwordAgain")
+        const passwordJudge = document.getElementById("passwordJudge")
+
+        const judge = function () {
+            if (passwordAgain.value != "") {
+                if (!/^(?![a-zA-Z]+$)(?![0-9]+$)[0-9A-Za-z\W]{6,18}$/.test(password.value)) {
+                    console.log(/^(?![a-zA-Z]+$)(?![0-9]+$)[0-9A-Za-z\W]{6,18}$/.test(password.value))
+                    passwordJudge.innerText = "密码要6-18位，有字母数字，可以包含特殊字符"
+                } else if (password.value != passwordAgain.value) {
+                    passwordJudge.innerText = "密码不一致！"
+                } else if (password.value == passwordAgain.value) {
+                    passwordJudge.innerText = "密码一致"
+                }
+            } else {
+                passwordJudge.innerText = ""
+            }
+        }
+
+        password.addEventListener("keyup", judge)
+        passwordAgain.addEventListener("keyup", judge)
+
+        function submitForm(){
+        if(password.value != passwordAgain.value || !/[a-zA-Z0-9_]{5,15}$/.test(username.value) || isHave || !/^(?![a-zA-Z]+$)(?![0-9]+$)[0-9A-Za-z\W]{6,18}$/.test(password.value)){
+            alert("请检查信息填写的正确性")
+        } else {
+            $.post("/admin/register",$("#register").serialize(),function (data) {
+                    if (data.code == 200){
+                        location.reload();
+                    }
+                    layer.msg(data.msg)
+                })
+        }
+        return false;
+    }
+    </script>
+</body>
+
+</html>

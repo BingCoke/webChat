@@ -1,0 +1,48 @@
+<mapper namespace="com.dzt.dao.MessageDao" entity="com.dzt.entity.Message">
+    <select id="findSameFriendApplication" resultType="com.dzt.bean.selectBean.LongCount">
+        select count(*) count from message where from_id=? and to_id=? and msg_type=3
+    </select>
+    <select id="findSameGroupApplication" resultType="com.dzt.bean.selectBean.LongCount">
+        select count(*) count from message where from_id=? and to_id=? and msg_type=4
+    </select>
+    <select id="getGroupApplicationMsg" resultType="com.dzt.bean.selectBean.Sender">
+        SELECT * from
+        (SELECT id msg_id,msg_type,from_id,to_id,content,time from message where msg_type=4) m
+        JOIN
+        (SELECT group_id from group_member WHERE user_id=? and power in (2,3)) gm
+        on m.to_id = gm.group_id
+        join
+        (SELECT id user_id,name,profile from user) u
+        on u.user_id = m.from_id
+    </select>
+    <select id="getFriendApplicationMsg" resultType="com.dzt.bean.selectBean.Sender">
+        SELECT * from
+        (SELECT id msg_id,msg_type,from_id,to_id,content,time from message where msg_type = 3) m
+        JOIN
+        (SELECT id user_id,name,profile FROM user) u
+        on u.user_id=m.from_id
+        WHERE to_id=?
+    </select>
+
+    <select id="getGroupAnnouncement" >
+        select * from message where msg_type=14 and to_id=?
+    </select>
+
+    <select id="getReport">
+        select * from message where msg_type=6
+    </select>
+    <select id="getFriendMessageCount" resultType="com.dzt.bean.selectBean.LongCount">
+        SELECT count(*) count from message WHERE (from_id=? and to_id=?) or (from_id=? and to_id=?) and msg_type=1
+    </select>
+    <select id="getFriendMessage">
+        SELECT * from ( SELECT * from message WHERE (from_id=? and to_id=?) or (from_id=? and to_id=?) and msg_type=1 ORDER BY time desc limit ?,?) m ORDER BY time
+    </select>
+    <select id="getGroupMessageCount" resultType="com.dzt.bean.selectBean.LongCount" >
+        SELECT count(*) count from message WHERE to_id=? and msg_type=2
+    </select>
+    <select id="getGroupMessage">
+        SELECT * from  (SELECT * from message WHERE to_id=? and msg_type=2 ORDER BY time desc limit ?,? ) m ORDER BY time
+    </select>
+
+
+</mapper>

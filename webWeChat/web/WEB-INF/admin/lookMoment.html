@@ -1,0 +1,62 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>朋友圈</title>
+    <link rel="stylesheet" href="../../static/layui/css/layui.css">
+    <link rel="stylesheet" href="../../static/css/chat.css">
+</head>
+
+<body>
+
+    <div id="moment">
+    </div>
+    <hr>
+    <div style="overflow-y:auto;max-height: 150px;" id="commentDiv">
+
+    </div>
+
+
+
+    <script type="text/javascript" src="../../static/js/my.js"></script>
+    <script src="../../static/layui/layui.js"></script>
+    <script src="../../static/js/jquery.js"></script>
+    <script>
+        function getComment() {
+            $("#commentDiv").empty()
+            $.get("/admin/getComment", function (res) {
+                for (var i = 0; i < res.data.length; i++) {
+                    var data = res.data[i]
+                    str = '<div class="layui-panel"><div style="padding: 30px;"><img src="/img/' + data.profile + '" class="layui-nav-img">'
+                    if (data.status == 0) {
+                        str = str + data.userName + ':' + data.content
+                    } else {
+                        
+                        str = str + data.userName + " 回复 " + data.upUserName + ':' + data.content
+                    }
+
+                    str = str + '</div></div>'
+                    $("#commentDiv").append(str)
+                }
+            })
+        }
+
+        getComment()
+
+        $.get("/admin/getInformation", function (res) {
+            var publisher = res.data.publisher
+            var str =
+                '<div class="layui-panel" ><div style="padding: 60px;">' +
+                publisher.remark + '<img src="/img/' + publisher.profile + '" class="layui-nav-img">  时间' + format(publisher.time) + '<br>' +
+                publisher.content
+                + '<br><span style="float: right;">点赞数<p id="likeCount" >' + res.data.like + '</p></span> '
+            str = str + '</div></div>'
+            $("#moment").append(str);
+        })
+
+    </script>
+</body>
+
+</html>

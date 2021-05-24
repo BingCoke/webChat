@@ -1,0 +1,986 @@
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>$</title>
+    <link rel="stylesheet" href="/static/layui/css/layui.css">
+    <link rel="stylesheet" href="./static/css/chat.css">
+</head>
+<style>
+    .dis {
+        display: none;
+    }
+
+    .current {
+        display: block;
+    }
+</style>
+
+<body>
+    <ul class="layui-nav">
+        <li class="layui-nav-item">
+            <a class="nav">聊天<span class="layui-badge">9</span></a>
+        </li>
+        <li class="layui-nav-item">
+            <a class="nav">通讯录<span class="layui-badge-dot"></span></a>
+        </li>
+        <li class="layui-nav-item">
+            <a class="nav">朋友圈<span class="layui-badge-dot"></span></a>
+        </li>
+        <li class="layui-nav-item ">
+            <a id="my"></a>
+            <dl class="layui-nav-child">
+                <dd><a href="javascript:void(0)" id="updateUser">修改个人信息</a></dd>
+                <dd><a id="exit" href="javascript:void(0)">退了</a></dd>
+            </dl>
+        </li>
+    </ul>
+    <!--聊天相关的界面-->
+    <div class="current nav-div">
+        <div class="layui-fluid">
+            <div class="layui-row">
+                <div class="layui-col-lg2 layui-col-md2">
+                    <div class="layui-tab" style="width: 200px;">
+                        <ul class="layui-tab-title">
+                            <li class="layui-this">好友聊天</li>
+                            <li>群聊天</li>
+                        </ul>
+                        <div class="layui-tab-content">
+                            <div class="layui-tab-item layui-show">
+                                <div class="layui-panel">
+                                    <ul class="layui-menu" id="friendChat">
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="layui-tab-item">
+                                <div class="layui-panel">
+                                    <ul class="layui-menu" id="groupChat">
+                                        <li lay-options="{id: 100}">
+                                            <div class="layui-menu-body-title">men444441</div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layui-col-lg10 layui-col-md10">
+
+                    <div id="chatDiv"
+                        style="width: 1042;height: 450;border-style:solid;background-image: url(1.jpg);OVERFLOW-Y: auto;overflow:auto; ">
+
+                    </div>
+
+                    <div id="chatArea" contenteditable="true" style="width: 1042;height: 90;OVERFLOW-Y: auto;"></div>
+                    <div style="max-width: 1042;">
+                        <button type="button" class="layui-btn layui-btn-primary layui-border-blue" style="float:right;"
+                            id="sendMsg">发送</button>
+                        <hr>
+                        <button type="button" class="layui-btn layui-btn-primary layui-border-green"
+                            id="upImg">发送图片</button>
+                        <button type="button" class="layui-btn layui-btn-primary layui-border-blue"
+                            id="expression">表情</button>
+                        <button type="button" class="layui-btn layui-btn-primary layui-border-green"
+                            id="myExpression">我的表情</button>
+                        <button type="button" class="layui-btn layui-btn-primary layui-border-blue" id="addExpression"
+                            style="display: none;">增加我的表情</button>
+                        <button type="button" class="layui-btn layui-btn-primary layui-border-green"
+                            id="upFile">发送文件</button>
+                        <button type="button" class="layui-btn layui-btn-primary layui-border-green"
+                            id="history">历史记录</button>
+                        <button type="button" class="layui-btn layui-btn-primary layui-border-blue"
+                            style="display: none;" id="FriendCard">好友卡片</button>
+                        <button type="button" class="layui-btn layui-btn-primary layui-border-green"
+                            style="display: none;" id="at">以@某人的方式发送</button>
+                        <hr>
+                    </div>
+                    <div id="free" style="width: 1042;max-width: 1042;OVERFLOW-Y: auto;"></div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!--通讯录相关的界面-->
+    <div class="dis nav-div">
+        <div class="layui-tab">
+            <ul class="layui-tab-title">
+                <li class="layui-this">好友</li>
+                <li>群</li>
+                <li>添加好友</li>
+                <li>添加/创建群</li>
+                <li>好友申请</li>
+                <li>群申请</li>
+            </ul>
+            <div class="layui-tab-content">
+                <!--      当前的好友      -->
+                <div class="layui-tab-item layui-show">当前的好友
+                    <table class="layui-table">
+                        <tbody id="nowFriend">
+
+                        </tbody>
+                    </table>
+
+                </div>
+                <!--      当前的群          -->
+                <div class="layui-tab-item">
+
+                    <table class="layui-table">
+                        <tbody id="nowGroup">
+
+                        </tbody>
+                    </table>
+
+                </div>
+                <!--      好友添加          -->
+                <div class="layui-tab-item">
+                    <input maxlength="10" id="findUser"><br>
+                    <button id="findByUsername" type="button">根据用户名查找</button>
+                    <button id="findByName" type="button">根据名字查找</button>
+                    <table class="layui-table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>用户名</th>
+                                <th>名称</th>
+                                <th>查看</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTable">
+                        </tbody>
+                    </table>
+
+
+                    当前页 : <input type="text" id="nowCurrentPage" value="1"><button id="change">改变</button><br>
+                    <button id="lastPage">上一页</button>
+                    <button id="nextPage">下一页</button>
+
+                    <form style="display: none" id="putForm">
+                        <input name="currentPage" id="currentPage" value="1">
+                        <input name="dataSize" id="dataSize" value="10">
+                        <input name="totalPages" id="totalPages" value="">
+                        <input name="totalDateSize" id="totalDateSize" value="">
+                        <input name="" id="select" value="">
+                    </form>
+
+                </div>
+
+                <!--      添加创建群          -->
+                <div class="layui-tab-item">添加/创建群
+                    <button class="layui-btn layui-btn-sm" id="creatGroup">创建群</button><br>
+                    <input maxlength="10" id="findGroup"><br>
+
+                    <button id="findByGroupName" type="button">根据名字查找</button>
+                    <button id="findByGroupId" type="button">根据群号查找</button>
+                    <table class="layui-table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>群名</th>
+                                <th>查看</th>
+                            </tr>
+                        </thead>
+                        <tbody id="groupsTable">
+                        </tbody>
+                    </table>
+
+
+                    当前页 : <input type="text" id="nowCurrentPageGroup" value="1"><button id="changeGroup">改变</button><br>
+                    <button class="layui-btn layui-btn-sm" id="lastPageGroup">上一页</button>
+                    <button class="layui-btn layui-btn-sm" id="nextPageGroup">下一页</button>
+
+                    <form style="display: none" id="putFormGroup">
+                        <input name="currentPage" id="currentPageGroup" value="1">
+                        <input name="dataSize" id="dataSizeGroup" value="10">
+                        <input name="totalPages" id="totalPagesGroup" value="">
+                        <input name="totalDateSize" id="totalDateSizeGroup" value="">
+                        <picture></picture>
+                        <input name="" id="selectGroup" value="">
+                    </form>
+                </div>
+                <div class="layui-tab-item">
+                    <table class="layui-table">
+                        <tbody id="friendApplication">
+
+                        </tbody>
+                    </table>
+                </div>
+                <div class="layui-tab-item">
+                    <table class="layui-table">
+                        <tbody id="groupApplication">
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--朋友圈相关的界面-->
+    <div class="dis nav-div">
+        <form class="layui-form" style="width: 1042px;" id="moment">
+            <div class="layui-form-item">
+                <label class="layui-form-label"></label>
+                <div class="layui-input-block">
+                    <textarea id="publishMoments" name="myMoment" style="display: none;"></textarea><br>
+                </div>
+            </div>
+
+            <div class="layui-form-item" style="display: none;" id="setUnLook">
+                <label class="layui-form-label"></label>
+                <div class="layui-input-block" id="friendBox">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button class="layui-btn layui-btn-primary layui-border-blue" type="button"
+                        id="setLook">设置部分好友不可见</button>
+                    <button class="layui-btn layui-btn-primary layui-border-blue" type="button" id="publish">发布</button>
+                </div>
+            </div>
+        </form>
+        <hr>
+        <div id="Friendmoments">
+
+        </div>
+
+        当前页 : <input type="text" id="nowCurrentPageMoment" value="1"><button id="changeMoment">改变</button><br>
+        <button id="lastPageMoment">上一页</button>
+        <button id="nextPageMoment">下一页</button>
+
+        <form style="display: none" id="putFormMoment">
+            <input name="currentPage" id="currentPageMoment" value="1">
+            <input name="dataSize" id="dataSizeMoment" value="10">
+            <input name="totalPages" id="totalPagesMoment" value="">
+            <input name="totalDateSize" id="totalDateSizeMoment" value="">
+        </form>
+
+
+
+
+
+    </div>
+
+    <script type="text/javascript" src="../../static/js/my.js"></script>
+    <script src="/static/layui/layui.js"></script>
+    <script src="/static/js/jquery.js"></script>
+    <script src="/static/js/jqueryCookie.js"></script>
+    <script src="/static/js/xss.js"></script>
+    <script>
+
+
+
+        for (var i = 0; i < $(".nav").length; i++) {
+            $(".nav")[i].setAttribute("index", i)
+            $($(".nav")[i]).click(function () {
+                for (var j = 0; j < $(".nav-div").length; j++) {
+                    $(".nav-div")[j].className = "dis nav-div"
+                }
+                var index = this.getAttribute("index")
+                $(".nav-div")[index].className = "current nav-div"
+            })
+        }
+
+        getUser()
+
+
+        var user = JSON.parse(sessionStorage.getItem('user'))
+        if (user == undefined) {
+            location.href = "/login.jsp"
+        } else {
+            if (user.power == 1) {
+                $("#my").html('<img src="/img/' + user.profile + '" id="profile" class="layui-nav-img">' + user.name)
+                if (user.back != "" || user.back != undefined) {
+                    $("#chatDiv").css("background-image", 'url("/img/' + user.back + '")')
+                } else {
+                    location.href = "/tourist.html"
+                }
+            }
+
+        }
+        var groupAnnouncement = new Map();
+        var friendCount = new Map();
+        var groupCount = new Map();
+        var myFriends = new Map();
+        var who = new Object();
+        getGroups()
+        getFriendApplication()
+        getGroupApplication();
+        var groupAuthorities;
+        var userAuthorities;
+        var friendChatMap = new Map();
+        var groupChatMap = new Map();
+
+        getGroupAuthorities()
+        getUserAuthorities()
+        getFriendChat()
+        getGroupChat()
+
+
+        $("#exit").click(function () {
+            $.removeCookie("user")
+            location.href = "/login.jsp"
+            ws.close()
+        })
+
+        $("#updateUser").click(function () {
+            layer.open({
+                type: 2,
+                content: ['/user/toUpdate', 'no'],
+                //这里content是一个URL，如果你不想让iframe出现滚动条，你还可以content: ['url', 'no']
+                area: ['500px', '430px'],
+                cancel: function () {
+                    var profile = sessionStorage.getItem("profileUrl")
+                    var back = sessionStorage.getItem("backUrl")
+                    var user = JSON.parse($.cookie("user"))
+
+                    $.removeCookie("user")
+
+                    if (back != undefined || back != "") {
+                        $("#chatDiv").css("background-image", 'url("/img/' + back + '")')
+                        user.back = back
+                    }
+                    if (profile != undefined || profile != "") {
+                        $("#profile").attr("src", "/img/" + profile)
+                        user.profile = profile
+                    }
+
+                    $.cookie("user", JSON.stringify(user), {
+                        expires: 7,
+                        path: "/"
+                    })
+                    sessionStorage.setItem("user", JSON.stringify(user))
+                }
+            });
+        })
+
+
+
+        for (var i = 0; i < $(".nav").length; i++) {
+            $(".nav")[i].setAttribute("index", i)
+            $($(".nav")[i]).click(function () {
+                for (var j = 0; j < $(".nav-div").length; j++) {
+                    $(".nav-div")[j].className = "dis nav-div"
+                }
+                var index = this.getAttribute("index")
+                $(".nav-div")[index].className = "current nav-div"
+            })
+        }
+
+        /**
+         * websocket相关
+         */
+        // 初始化一个 WebSocket 对象
+        var host = window.location.host;
+        var url = "ws://" + host + "/msg";
+
+        var ws = new WebSocket(url);
+
+        // 建立 web socket 连接成功触发事件
+        ws.onopen = function () {
+
+        };
+
+        // 接收服务端数据时触发事件
+        ws.onmessage = function (evt) {
+            var data = JSON.parse(evt.data);
+            msgFunction(data)
+        };
+
+        // 断开 web socket 连接成功触发事件
+        ws.onclose = function () {
+            layer.msg("连接被关闭了")
+        };
+
+
+        window.onbeforeunload = function () {
+            ; ws.close();
+        }
+
+        
+        /*
+         *  聊天相关
+         */
+
+        function senMsg() {
+            if (who.id == undefined) {
+                layer.msg("请先选择聊天对象")
+            } else if (/^\s+$/g.test($("#chatArea").html()) || $("#chatArea").html() == "") {
+                layer.msg("输入的信息为空")
+            } else {
+                var area = $("#chatArea").html()
+                sendMsg(area)
+                getChatArea()
+                $("#chatArea").empty()
+            }
+
+        }
+        $("#sendMsg").click(function () {
+            senMsg()
+        })
+        //上传图片
+        layui.use('upload', function () {
+            var upload = layui.upload;
+            //执行实例
+            var uploadInst = upload.render({
+                elem: '#upImg' //绑定元素
+                , url: '/user/saveFile' //上传接口
+                , done: function (res) {
+                    if (res.code == 0) {
+                        var html = $("#chatArea").html()
+                        $("#chatArea").html(html + '<img src="' + res.data.src + '" style="max-height: 150;max-width: 150;" >')
+                    }
+                }
+                , error: function () {
+                    //请求异常回调
+                }
+            });
+        });
+
+        $("#expression").click(function () {
+            $(document).unbind("contextmenu", "")
+            $("#addExpression").attr("style", 'display: none;')
+            $("#free").empty()
+            for (var i = 1; i <= 7; i++) {
+                $("#free").append(
+                    '<img src="/img/express/' + i + '.jpg" id="expression' + i + '" style="max-height: 100;max-width: 100;" >'
+                )
+                $("#expression" + i).attr("index", i)
+                $("#expression" + i).click(function () {
+
+                    var html = $("#chatArea").html()
+                    $("#chatArea").html(html + '<img src="/img/express/' + $(this).attr("index") + '.jpg" style="max-height: 100;max-width: 100;" >')
+                })
+            }
+
+        })
+
+        function getMyExpression() {
+            $(document).bind("contextmenu", function (e) {
+                return false;
+            })
+            $("#free").empty()
+            $("#addExpression").attr("style", 'display: inline;')
+            $.get("/expression/getMyExpression", function (res) {
+                for (var i = 0; i < res.data.length; i++) {
+                    $("#free").append(
+                        '<img src="' + res.data[i].src + '" id="MyExpression' + res.data[i].id + '" style="max-height: 100;max-width: 100;" >'
+                    )
+
+                    $("#MyExpression" + res.data[i].id).attr("data", JSON.stringify(res.data[i]))
+                    $("#MyExpression" + res.data[i].id).bind("contextmenu", function () {
+                        return false;
+                    })
+                    $("#MyExpression" + res.data[i].id).mousedown(function (e) {
+                        var data = JSON.parse($(this).attr("data"))
+                        //右键为3
+                        if (3 == e.which) {
+                            layer.confirm('要删除该表情吗', { icon: 3, title: '确认' }, function (index) {
+                                $.post("/expression/delete", data, function (res) {
+                                    layer.msg(res.msg)
+                                    getMyExpression()
+                                })
+                            });
+                        } else if (1 == e.which) {
+                            //左键为1
+                            var html = $("#chatArea").html()
+                            $("#chatArea").html(html + '<img src="' + data.src + '" style="max-height: 100;max-width: 100;" >')
+                        }
+                    })
+
+                }
+            })
+        }
+
+        $("#myExpression").click(function () {
+            getMyExpression()
+        })
+
+
+        layui.use('upload', function () {
+            var upload = layui.upload; //得到 upload 对象
+            //创建一个上传组件
+            upload.render({
+                elem: '#addExpression'
+                , url: '/expression/saveExpression'
+                , done: function (res, index, upload) { //上传后的回调
+                    layer.msg(res.msg)
+                    if (res.code == 200) {
+                        getMyExpression()
+                    }
+                }
+                , accept: 'images' //允许上传的文件类型
+                , size: 5 * 1024
+            })
+
+        });
+
+
+        layui.use('upload', function () {
+            var upload = layui.upload; //得到 upload 对象
+            //创建一个上传组件
+            upload.render({
+                elem: '#upFile'
+                , url: '/user/saveFile'
+                , done: function (res, index, upload) { //上传后的回调
+                    if (res.code == 0) {
+                        if (who.id == undefined) {
+                            layer.msg("请先选择聊天对象")
+                            return;
+                        }
+                        var msg = new Msg(who.mtype, user.id, who.id, res.data.src)
+                        msg.status = 1
+                        msg.fileName = res.data.fileName
+                        if (who.mtype == 1) {
+                            var msgs = friendChatMap.get("" + msg.toId);
+                            msgs.push(JSON.stringify(msg))
+                        } else if (who.mtype == 2) {
+                            var msgs = groupChatMap.get("" + msg.toId);
+                            msgs.push(JSON.stringify(msg))
+                        }
+                        ws.send(JSON.stringify(msg))
+                        getChatArea()
+                    } else {
+                        layer.msg(res.msg)
+                    }
+                }
+                , accept: 'file' //允许上传的文件类型
+            })
+
+        });
+
+
+        $("#at").click(function () {
+            $(document).unbind("contextmenu", "")
+            $("#addExpression").attr("style", 'display: none;')
+            $("#free").empty()
+            $("#free").append('<ul class="layui-menu" id="groupMember"></ul>')
+
+            $.get("/group/toLookGroup?id=" + who.id, function (res) {
+                $.get("/group/getLookGroupInformation", function (res) {
+                    $("#groupMember").attr("group", res.group.name)
+                    if (groupAuthorities[res.group.id + ""] == 3) {
+                        $("#groupMember").append(
+                            '<li id="memberAll" ><div class="layui-menu-body-title">' +
+                            "@所有人" +
+                            '</div></li>'
+                        )
+                        $("#memberAll").click(function () {
+                            $.get("/group/atAll", function (res) {
+                                if (res.code != 200) {
+                                    layer.msg(res.msg)
+                                } else {
+                                    var area = $("#chatArea").html()
+                                    $("#chatArea").html(area + '@所有人')
+                                    senMsg()
+                                }
+                            })
+                        })
+                    }
+                    for (var i = 0; i < res.groupMember.length; i++) {
+                        if (res.groupMember[i].userId != user.id) {
+                            $("#groupMember").append(
+                                '<li id="member' + res.groupMember[i].userId + '" ><div class="layui-menu-body-title">' +
+                                '<img src="/img/' + res.groupMember[i].profile + '"  class="layui-nav-img">' + res.groupMember[i].vest +
+                                '</div></li>'
+                            )
+                            $("#member" + res.groupMember[i].userId).attr("memberName", res.groupMember[i].vest)
+                            $("#member" + res.groupMember[i].userId).attr("userId", res.groupMember[i].userId)
+                            $("#member" + res.groupMember[i].userId).click(function () {
+                                var area = $("#chatArea").html()
+                                $("#chatArea").html(area + '@' + $(this).attr("memberName"))
+                                senMsg()
+                                var msg = new Msg(7, user.id, parseInt($(this).attr("userId")), user.name + "在群" + $("#groupMember").attr("group") + "@了一下你")
+                                ws.send(JSON.stringify(msg))
+                            })
+                        }
+                    }
+                })
+            })
+        })
+
+        $("#FriendCard").click(function () {
+            if (who.id == undefined) {
+                layer.msg("请先选择聊天对象")
+                return;
+            }
+            $(document).unbind("contextmenu", "")
+            $("#addExpression").attr("style", 'display: none;')
+            $("#free").empty()
+            $("#free").append('<ul class="layui-menu" id="sendfriend"></ul>')
+            $.get("/friend/getMyFriends", function (res) {
+                for (var i = 0; i < res.data.length; i++) {
+                    if (who.id == res.data[i].userId) {
+                        continue
+                    }
+                    $("#sendfriend").append(
+                        '<li id="card' + res.data[i].userId + '" ><div class="layui-menu-body-title">' +
+                        '<img src="/img/' + res.data[i].profile + '"  class="layui-nav-img">' + res.data[i].remark +
+                        '</div></li>'
+                    )
+                    $("#card" + res.data[i].userId).attr("userId", res.data[i].userId)
+                    $("#card" + res.data[i].userId).click(function () {
+                        var msg = new Msg(who.mtype, user.id, who.id, $(this).attr("userId"))
+                        msg.status = 2
+                        if (who.mtype == 1) {
+                            var msgs = friendChatMap.get("" + msg.toId);
+                            msgs.push(JSON.stringify(msg))
+                        } else if (who.mtype == 2) {
+                            var msgs = groupChatMap.get("" + msg.toId);
+                            msgs.push(JSON.stringify(msg))
+                        }
+                        ws.send(JSON.stringify(msg))
+                        getChatArea()
+                    })
+                }
+
+            })
+        })
+
+
+
+        $("#history").click(function () {
+            if (who.id == undefined) {
+                layer.msg("请先选择聊天对象")
+                return;
+            }
+            $(document).unbind("contextmenu", "")
+            $.get("/message/toLookMessage?type=" + who.mtype + "&&id=" + who.id, function (res) {
+                layer.open({
+                    type: 2,
+                    content: ['/message/lookMessage'],
+                    area: ['1042px', '580px'],
+                    offset: '100px'
+                });
+                if (res.code == 500) {
+                    layer.msg(res.msg)
+                }
+            })
+        })
+        /*
+         * 通讯录相关
+         */
+        layui.use('element', function () {
+            var element = layui.element;
+
+            //…
+        });
+        //显示当前好友
+        getFriends();
+        //添加好友
+
+
+
+        function pageFunction(type) {
+            if (type == "lastPage") {
+                $("#currentPage").val(parseInt($("#currentPage").val()) == 1 ? 1 : parseInt($("#currentPage").val()) - 1)
+            } else if (type == "nextPage") {
+                $("#currentPage").val((parseInt($("#currentPage").val()) == parseInt($("#totalPages").val()) ? parseInt($("#totalPages").val()) : parseInt($("#currentPage").val()) + 1))
+            } else if (type == "search") {
+                if (isEmpty($("#name").val()) || isEmpty($("#startPrice").val()) || isEmpty($("#endPrice"))) {
+                    $("#currentPage").val("1");
+                }
+            }
+
+            $.post("/user/findUser", $("#putForm").serialize(), function (data) {
+                $("#usersTable").empty()
+                if (data.code == 200) {
+                    for (let i = 0; i < data.data.data.length; i++) {
+                        $("#usersTable").append("<tr>" +
+                            "<td>" + '<img src="/img/' + data.data.data[i].profile + '" id="profile" class="layui-nav-img">' + "</td> " +
+                            "<td>" + data.data.data[i].username + "</td>" +
+                            "<td>" + data.data.data[i].name + "</td>" +
+                            "<td>" + "<button class='layui-btn layui-btn-xs' id='add" + data.data.data[i].id + "'>添加</button>" + "</td>" +
+                            "</tr>")
+                        $("#add" + data.data.data[i].id).attr("theId", data.data.data[i].id)
+                        $("#add" + data.data.data[i].id).click(function () {
+                            var msg = new Msg(3, user.id, parseInt($(this).attr("theId")), "申请你为好友")
+                            ws.send(JSON.stringify(msg))
+                        })
+                    }
+
+                    $("#currentPage").val(data.data.currentPage)
+                    $("#dataSize").val(data.data.dataSize)
+                    $("#totalPages").val(data.data.totalPages)
+                    $("#totalDateSize").val(data.data.totalDateSize)
+
+                    $("#nowTotalPages").text($("#totalPages").val())
+                    $("#nowDataSize").text($("#dataSize").val())
+                    $("#nowCurrentPage").val($("#currentPage").val())
+
+                } else {
+                    $("#booksTable").empty()
+                }
+
+            })
+        };
+
+
+        $("#findByUsername").click(function () {
+            $("#select").attr("name", "username")
+            $("#select").val($("#findUser").val())
+            $("#currentPage").val("1");
+            pageFunction()
+        })
+        $("#findByName").click(function () {
+            $("#select").attr("name", "name")
+            $("#select").val($("#findUser").val())
+            $("#currentPage").val("1");
+            pageFunction()
+        })
+
+
+        $("#lastPage").click(function () {
+            pageFunction("lastPage")
+        })
+
+        $("#nextPage").click(function () {
+            pageFunction("nextPage")
+        })
+
+        $("#change").click(function () {
+            if (isNaN($("#nowCurrentPage").val()) && isNaN($("#nowDataSize").val())) {
+                alert("请输入正确的信息")
+            } else {
+                $("#currentPage").val($("#nowCurrentPage").val())
+                $("#dataSize").val($("#nowDataSize").text())
+            }
+            pageFunction("")
+        })
+
+        //群
+
+        $("#creatGroup").click(function () {
+            layer.open({
+                type: 2,
+                content: ['/group/toCreat', 'no'],
+                area: ['500px', '430px']
+            });
+        })
+
+
+        function pageFunctionGroup(type) {
+            if (type == "lastPage") {
+                $("#currentPageGroup").val(parseInt($("#currentPageGroup").val()) == 1 ? 1 : parseInt($("#currentPageGroup").val()) - 1)
+            } else if (type == "nextPage") {
+                $("#currentPageGroup").val((parseInt($("#currentPageGroup").val()) == parseInt($("#totalPagesGroup").val()) ? parseInt($("#totalPagesGroup").val()) : parseInt($("#currentPage").val()) + 1))
+            } else if (type == "search") {
+                if (isEmpty($("#nameGroup").val())) {
+                    $("#currentPageGroup").val("1");
+                }
+            }
+
+            $.post("/group/findGroups", $("#putFormGroup").serialize(), function (data) {
+                $("#groupsTable").empty()
+                if (data.code == 200) {
+                    for (let i = 0; i < data.data.data.length; i++) {
+                        $("#groupsTable").append("<tr>" +
+                            "<td>" + '<img src="/img/group.jpg" id="profile" class="layui-nav-img">' + "</td> " +
+                            "<td>" + data.data.data[i].name + "</td>" +
+                            "<td>" + "<button class='layui-btn layui-btn-xs' id='addGroup" + data.data.data[i].id + "'>添加</button>" + "</td>" +
+                            "</tr>")
+                        $("#addGroup" + data.data.data[i].id).attr("theId", data.data.data[i].id)
+                        $("#addGroup" + data.data.data[i].id).click(function () {
+                            var msg = new Msg(4, user.id, parseInt($(this).attr("theId")), "申请加入群" + data.data.data[i].name)
+                            ws.send(JSON.stringify(msg))
+                        })
+                    }
+
+                    $("#currentPageGroup").val(data.data.currentPage)
+                    $("#dataSizeGroup").val(data.data.dataSize)
+                    $("#totalPagesGroup").val(data.data.totalPages)
+                    $("#totalDateSizeGroup").val(data.data.totalDateSize)
+
+                    $("#nowTotalPagesGroup").text($("#totalPagesGroup").val())
+                    $("#nowDataSizeGroup").text($("#dataSizeGroup").val())
+                    $("#nowCurrentPageGroup").val($("#currentPageGroup").val())
+
+                } else {
+                    $("#GroupsTable").empty()
+                }
+
+            })
+        };
+
+
+        $("#findByGroupId").click(function () {
+            $("#selectGroup").val($("#findGroup").val())
+            $("#selectGroup").attr("name", "id")
+            $("#currentPageGroup").val("1");
+            pageFunctionGroup()
+        })
+        $("#findByGroupName").click(function () {
+            $("#selectGroup").attr("name", "name")
+            $("#selectGroup").val($("#findGroup").val())
+            $("#currentPageGroup").val("1");
+            pageFunctionGroup()
+        })
+
+
+        $("#lastPageGroup").click(function () {
+            pageFunctionGroup("lastPage")
+        })
+
+        $("#nextPageGroup").click(function () {
+            pageFunctionGroup("nextPage")
+        })
+
+        $("#changeGroup").click(function () {
+            if (isNaN($("#nowCurrentPageGroup").val()) && isNaN($("#nowDataSizeGroup").val())) {
+                alert("请输入正确的信息")
+            } else {
+                $("#currentPageGroup").val($("#nowCurrentPageGroup").val())
+            }
+            pageFunctionGroup("")
+        })
+
+
+        /**
+         * 朋友圈相关
+         */
+        var index;
+        var layedit;
+        layui.use('layedit', function () {
+            layedit = layui.layedit;
+            layedit.set({
+                uploadImage: {
+                    url: '/user/saveFile' //接口url
+                }
+            });
+
+            index = layedit.build('publishMoments', {
+                tool: [
+                    'strong' //加粗
+                    , 'italic' //斜体
+                    , 'underline' //下划线
+                    , 'del' //删除线
+                    , '|' //分割线
+                    , 'left' //左对齐
+                    , 'center' //居中对齐
+                    , 'right' //右对齐
+                    , 'link' //超链接
+                    , 'unlink' //清除链接
+                    , 'image' //插入图片
+                ]
+            })//建立编辑器
+        });
+
+
+        $.get("/friend/getMyFriends", function (res) {
+            for (var i = 0; i < res.data.length; i++) {
+                $("#friendBox").append(
+                    '<img class="layui-nav-img"  width="150" src="/img/' + res.data[i].profile + '" id="profile" >' +
+                    '<input type="checkbox" name="friend" value="' + res.data[i].userId + '" title="' + res.data[i].remark + '">'
+                )
+            }
+            var form = layui.form;
+            form.render('checkbox');
+        })
+
+
+        $("#setLook").click(function () {
+            var show = $('#setUnLook').css('display');
+            $("#setUnLook").css('display', (show == 'block' ? 'none' : 'block'))
+        })
+
+
+        $("#publish").click(function () {
+            var content = filterXSS(layedit.getContent(index))
+            if (content == undefined || /^\s+$/g.test(layedit.getText(index)) || layedit.getText(index) == "") {
+                layer.msg("不能输入空白的内容哦")
+            } else {
+                $("#publishMoments").html(content)
+                $.post("/moment/publishMoment", $("#moment").serialize(), function (res) {
+                    layer.msg(res.msg)
+                    pageFunctionMoment()
+                })
+            }
+
+        })
+
+
+        function pageFunctionMoment(type) {
+            if (type == "lastPage") {
+                $("#currentPageMoment").val(parseInt($("#currentPageMoment").val()) == 1 ? 1 : parseInt($("#currentPageMoment").val()) - 1)
+            } else if (type == "nextPage") {
+                $("#currentPageMoment").val((parseInt($("#currentPageMoment").val()) == parseInt($("#totalPagesMoment").val()) ? parseInt($("#totalPagesMoment").val()) : parseInt($("#currentPageMoment").val()) + 1))
+            }
+
+            $.post("/moment/getFriendsMoment?ver=" + Math.random(), $("#putFormMoment").serialize(), function (data) {
+                $("#Friendmoments").empty()
+                if (data.code == 200) {
+                    for (let i = 0; i < data.data.data.length; i++) {
+                        var str =
+                            '<div class="layui-panel" ><div style="padding: 30px;">' +
+                            data.data.data[i].remark + '<img src="/img/' + data.data.data[i].profile + '"  class="layui-nav-img">  时间' + format(data.data.data[i].time) + '<br>' +
+                            data.data.data[i].content
+                            + '<button class="layui-btn layui-btn-sm" id="moment' + data.data.data[i].id + '" style="float: right;">查看</button>'
+                        if (data.data.data[i].userId = user.id) {
+                            str = str + '<button class="layui-btn layui-btn-sm" id="momentDelete' + data.data.data[i].id + '" style="float: right;">删除</button>'
+                        }
+                        str = str + '</div></div>'
+                        $("#Friendmoments").append(str)
+                        $("#moment" + data.data.data[i].id).attr("data", JSON.stringify(data.data.data[i]))
+                        $("#moment" + data.data.data[i].id).click(function () {
+                            $.post("/moment/toLookMoment", JSON.parse($(this).attr("data")), function (res) {
+                                if (res.code == 200) {
+                                    layer.open({
+                                        type: 2,
+                                        content: ['/moment/toLookDo'],
+                                        area: ['500px', '430px'],
+                                        offset: '100px'
+                                    });
+
+                                } else {
+                                    layer.msg(res.msg)
+                                }
+                            })
+                        })
+                        $("#momentDelete" + data.data.data[i].id).attr("data", JSON.stringify(data.data.data[i]))
+                        $("#momentDelete" + data.data.data[i].id).click(function () {
+                            $(this).parent().parent().remove();
+                            $.post("/moment/delete", JSON.parse($(this).attr("data")), function (res) {
+                                layer.msg(res.msg)
+                            })
+                        })
+                    }
+                    console.log(data.data)
+                    $("#currentPageMoment").val(data.data.currentPage)
+                    $("#dataSizeMoment").val(data.data.dataSize)
+                    $("#totalPagesMoment").val(data.data.totalPages)
+                    $("#totalDateSizeMoment").val(data.data.totalDateSize)
+
+                    $("#nowTotalPagesMoment").text($("#totalPagesMoment").val())
+                    $("#nowCurrentPageMoment").val($("#currentPageMoment").val())
+
+                } else {
+                    $("#Friendmoments").empty()
+                }
+
+            })
+        };
+        $("#lastPageMoment").click(function () {
+            pageFunctionMoment("lastPage")
+        })
+
+        $("#nextPageMoment").click(function () {
+            pageFunctionMoment("nextPage")
+        })
+
+        $("#changeMoment").click(function () {
+            if (isNaN($("#nowCurrentPageMoment").val()) && isNaN($("#nowDataSizeMoment").val())) {
+                alert("请输入正确的信息")
+            } else {
+                $("#currentPageMoment").val($("#nowCurrentPageMoment").val())
+                $("#dataSizeMoment").val($("#nowDataSizeMoment").text())
+            }
+            pageFunctionMoment("")
+        })
+        pageFunctionMoment()
+    </script>
+</body>
+
+</html>

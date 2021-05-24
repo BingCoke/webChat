@@ -1,0 +1,5 @@
+<mapper namespace="com.dzt.dao.AdminDao" entity="com.dzt.entity.Admin">
+    <update id="updatePassword" >
+        update admin set password=? where id=?
+    </update>
+</mapper>

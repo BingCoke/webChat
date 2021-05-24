@@ -1,0 +1,15 @@
+<mapper namespace="com.dzt.dao.MomentLikeDao" entity="com.dzt.entity.MomentLike">
+
+    <delete id="removeByMomentId">
+        DELETE from moment_like where moment_id = ?
+    </delete>
+    <select id="getLikeCount" resultType="com.dzt.bean.selectBean.LongCount" >
+        select count(*) count from moment_like where moment_id=?
+    </select>
+    <select id="isLike" resultType="com.dzt.bean.selectBean.LongCount">
+        select count(*) count from moment_like where moment_id=? and user_id = ?
+    </select>
+    <delete id="removeLike" >
+        DELETE from moment_like where moment_id = ? and user_id=?
+    </delete>
+</mapper>

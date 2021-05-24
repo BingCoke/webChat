@@ -1,0 +1,24 @@
+<mapper namespace="com.dzt.dao.UnreadMsgDao" entity="com.dzt.entity.UnreadMsg">
+    <select id="getUnreadMsg" resultType="com.dzt.entity.Message">
+        SELECT * from
+        message m
+        JOIN
+        (SELECT msg_id from unread_msg WHERE user_id=?) u
+        on u.msg_id=m.id
+    </select>
+    <delete id="deleteMyFriendMsg">
+        DELETE from unread_msg WHERE
+        msg_id in (SELECT id from message where msg_type=1 and from_id=? and to_id=?) and user_id=?
+    </delete>
+    <delete id="deleteMyGroupMsg">
+        DELETE from unread_msg WHERE
+        msg_id in (SELECT id from message where msg_type=2 and to_id=?) and user_id=?
+    </delete>
+    <delete id="deleteAnnouncement">
+        DELETE from unread_msg WHERE msg_id=?
+    </delete>
+
+    <delete id="deleteMyAnnouncement">
+        DELETE from unread_msg where msg_id in (SELECT id from message WHERE to_id=? and msg_type=14 ) and user_id=?
+    </delete>
+</mapper>

@@ -1,0 +1,412 @@
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>游客界面</title>
+    <link rel="stylesheet" href="/static/layui/css/layui.css">
+    <link rel="stylesheet" href="./static/css/chat.css">
+</head>
+<style>
+    .dis {
+        display: none;
+    }
+
+    .current {
+        display: block;
+    }
+</style>
+
+<body>
+    <ul class="layui-nav">
+        <li class="layui-nav-item">
+            <a class="nav">聊天<span class="layui-badge">9</span></a>
+        </li>
+        <li class="layui-nav-item">
+            <a class="nav">通讯录<span class="layui-badge-dot"></span></a>
+        </li>
+        <li class="layui-nav-item ">
+            <a id="my"></a>
+            <dl class="layui-nav-child">
+                <dd><a id="exit" href="javascript:void(0)">退了</a></dd>
+            </dl>
+        </li>
+    </ul>
+    <!--聊天相关的界面-->
+    <div class="current nav-div">
+        <div class="layui-fluid">
+            <div class="layui-row">
+                <div class="layui-col-lg2 layui-col-md2">
+                    <div class="layui-tab" style="width: 200px;">
+                        <ul class="layui-tab-title">
+                            <li class="layui-this">好友聊天</li>
+                        </ul>
+                        <div class="layui-tab-content">
+                            <div class="layui-tab-item layui-show">
+                                <div class="layui-panel">
+                                    <ul class="layui-menu" id="friendChat">
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layui-col-lg10 layui-col-md10">
+
+                    <div id="chatDiv"
+                        style="width: 1042;height: 450;border-style:solid;background-image: url(1.jpg);OVERFLOW-Y: auto; ">
+
+                    </div>
+
+                    <div id="chatArea" contenteditable="true" style="width: 1042;height: 90;"></div>
+                    <button class="layui-btn layui-btn-primary layui-border-blue" id="sendMsg">发送</button>
+                    <button type="button" class="layui-btn" id="img">
+                        <i class="layui-icon">&#xe67c;</i>上传图片
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--通讯录相关的界面-->
+    <div class="dis nav-div">
+        <div class="layui-tab">
+            <ul class="layui-tab-title">
+                <li class="layui-this">好友</li>
+                <li>添加好友</li>
+                <li>好友申请</li>
+            </ul>
+            <div class="layui-tab-content">
+                <!--      当前的好友      -->
+                <div class="layui-tab-item layui-show">当前的好友
+                    <table class="layui-table">
+                        <tbody id="nowFriend">
+
+                        </tbody>
+                    </table>
+
+                </div>
+                <!--      好友添加          -->
+                <div class="layui-tab-item">
+                    <input maxlength="10" id="findUser"><br>
+                    <button id="findByUsername" type="button">根据用户名查找</button>
+                    <button id="findByName" type="button">根据名字查找</button>
+                    <table class="layui-table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>用户名</th>
+                                <th>名称</th>
+                                <th>查看</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTable">
+                        </tbody>
+                    </table>
+
+
+                    当前页 : <input type="text" id="nowCurrentPage" value="1"><button id="change">改变</button><br>
+                    <button id="lastPage">上一页</button>
+                    <button id="nextPage">下一页</button>
+
+                    <form style="display: none" id="putForm">
+                        <input name="currentPage" id="currentPage" value="1">
+                        <input name="dataSize" id="dataSize" value="10">
+                        <input name="totalPages" id="totalPages" value="">
+                        <input name="totalDateSize" id="totalDateSize" value="">
+                        <input name="" id="select" value="">
+                    </form>
+
+                </div>
+
+                <div class="layui-tab-item">
+                    <table class="layui-table">
+                        <tbody id="friendApplication">
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="text/javascript" src="../../static/js/my.js"></script>
+    <script src="/static/layui/layui.js"></script>
+    <script src="/static/js/jquery.js"></script>
+    <script src="/static/js/jqueryCookie.js"></script>
+    <script src="/static/js/xss.js"></script>
+    <script>
+
+
+
+        for (var i = 0; i < $(".nav").length; i++) {
+            $(".nav")[i].setAttribute("index", i)
+            $($(".nav")[i]).click(function () {
+                for (var j = 0; j < $(".nav-div").length; j++) {
+                    $(".nav-div")[j].className = "dis nav-div"
+                }
+                var index = this.getAttribute("index")
+                $(".nav-div")[index].className = "current nav-div"
+            })
+        }
+
+        getUser()
+
+
+        var user = JSON.parse(sessionStorage.getItem('user'))
+        if (user == undefined) {
+            location.href = "/login.jsp"
+        }
+        if (user.power == 2) {
+            $("#my").html('<img src="/img/tourist.jpg" id="profile" class="layui-nav-img">' + user.name)
+            if (user.back != "" || user.back != undefined) {
+                $("#chatDiv").css("background-image", 'url("/img/' + user.back + '")')
+            }
+        }
+
+        var friendCount = new Map();
+
+        var myFriends = new Map();
+        var who = new Object();
+        getGroups()
+        getFriendApplication()
+
+        var userAuthorities;
+        var friendChatMap = new Map();
+
+        getUserAuthorities()
+        getFriendChat()
+
+
+
+        $("#exit").click(function () {
+            $.removeCookie("user")
+            location.href = "/login.jsp"
+            ws.close()
+        })
+
+
+
+
+        for (var i = 0; i < $(".nav").length; i++) {
+            $(".nav")[i].setAttribute("index", i)
+            $($(".nav")[i]).click(function () {
+                for (var j = 0; j < $(".nav-div").length; j++) {
+                    $(".nav-div")[j].className = "dis nav-div"
+                }
+                var index = this.getAttribute("index")
+                $(".nav-div")[index].className = "current nav-div"
+            })
+        }
+
+        /**
+         * websocket相关
+         */
+        // 初始化一个 WebSocket 对象
+        var host = window.location.host;
+        var url = "ws://" + host + "/msg";
+
+        var ws = new WebSocket(url);
+
+        // 建立 web socket 连接成功触发事件
+        ws.onopen = function () {
+
+        };
+
+        // 接收服务端数据时触发事件
+        ws.onmessage = function (evt) {
+            var data = JSON.parse(evt.data);
+            msgFunction(data)
+        };
+
+        // 断开 web socket 连接成功触发事件
+        ws.onclose = function () {
+            layer.msg("连接被关闭了")
+        };
+
+
+        window.onbeforeunload = function () {
+            ; ws.close();
+        }
+
+        function msgFunction(data) {
+            var msg = data.msg
+            switch (msg.msgType) {
+                case 1:
+                    if (who.id != msg.fromId) {
+                        $("#span" + msg.fromId).attr("class", "layui-badge");
+
+                        var longCount = friendCount['' + msg.fromId] + 1;
+                        friendCount['' + msg.fromId] = longCount;
+                        $("#span" + msg.fromId).html(longCount)
+                    } else {
+
+                        deleteMyFriendMsg()
+                    }
+                    friendChatMap.get("" + msg.fromId).push(JSON.stringify(msg))
+                    getChatArea()
+                    break
+                case 2:
+                    if (who.id != msg.toId) {
+                        $("#spanGroup" + msg.toId).attr("class", "layui-badge");
+                        var count = groupCount['' + msg.toId] + 1;
+                        groupCount['' + msg.toId] = count;
+                        $("#spanGroup" + msg.toId).html(count)
+                    } else {
+                        deleteMyGroupMsg()
+                    }
+                    groupChatMap.get("" + msg.toId).push(JSON.stringify(msg))
+                    getChatArea()
+                    break
+                case 3:
+                    getFriendApplication()
+                    break
+                case 5:
+                    break
+                case 9:
+                    layer.msg(msg.content)
+                    break
+                case 11:
+                    getUserAuthorities()
+                    break
+                case 12:
+                    getFriends()
+                    getFriendChat()
+                    break
+                case 14:
+                    groupAnnouncement.set("" + msg.toId, msg.content)
+                    break
+                case 15:
+                    getUser()
+            }
+        }
+
+        /*
+         *  聊天相关
+         */
+
+        $("#sendMsg").click(function () {
+            if (who.id == undefined) {
+                layer.msg("请先选择聊天对象")
+            } else if (/^\s+$/g.test($("#chatArea").text()) || $("#chatArea").text() == "") {
+                layer.msg("输入的信息为空")
+            } else {
+                var area = $("#chatArea").html()
+                sendMsg(area)
+                getChatArea()
+                $("#chatArea").empty()
+            }
+
+        })
+
+        layui.use('upload', function () {
+            var upload = layui.upload;
+            //执行实例
+            var uploadInst = upload.render({
+                elem: '#test1' //绑定元素
+                , url: '/upload/' //上传接口
+                , done: function (res) {
+                    //上传完毕回调
+                }
+                , error: function () {
+                    //请求异常回调
+                }
+            });
+        });
+
+        /*
+         * 通讯录相关
+         */
+        layui.use('element', function () {
+            var element = layui.element;
+
+            //…
+        });
+        //显示当前好友
+        getFriends();
+        //添加好友
+
+
+
+        function pageFunction(type) {
+            if (type == "lastPage") {
+                $("#currentPage").val(parseInt($("#currentPage").val()) == 1 ? 1 : parseInt($("#currentPage").val()) - 1)
+            } else if (type == "nextPage") {
+                $("#currentPage").val((parseInt($("#currentPage").val()) == parseInt($("#totalPages").val()) ? parseInt($("#totalPages").val()) : parseInt($("#currentPage").val()) + 1))
+            } else if (type == "search") {
+                if (isEmpty($("#name").val()) || isEmpty($("#startPrice").val()) || isEmpty($("#endPrice"))) {
+                    $("#currentPage").val("1");
+                }
+            }
+
+            $.post("/user/findUser", $("#putForm").serialize(), function (data) {
+                $("#usersTable").empty()
+                if (data.code == 200) {
+                    for (let i = 0; i < data.data.data.length; i++) {
+                        $("#usersTable").append("<tr>" +
+                            "<td>" + '<img src="/img/' + data.data.data[i].profile + '" id="profile" class="layui-nav-img">' + "</td> " +
+                            "<td>" + data.data.data[i].username + "</td>" +
+                            "<td>" + data.data.data[i].name + "</td>" +
+                            "<td>" + "<button class='layui-btn layui-btn-xs' id='add" + data.data.data[i].id + "'>添加</button>" + "</td>" +
+                            "</tr>")
+                        $("#add" + data.data.data[i].id).attr("theId", data.data.data[i].id)
+                        $("#add" + data.data.data[i].id).click(function () {
+                            var msg = new Msg(3, user.id, parseInt($(this).attr("theId")), "申请你为好友")
+                            ws.send(JSON.stringify(msg))
+                        })
+                    }
+                    $("#currentPage").val(data.data.currentPage)
+                    $("#dataSize").val(data.data.dataSize)
+                    $("#totalPages").val(data.data.totalPages)
+                    $("#totalDateSize").val(data.data.totalDateSize)
+
+                    $("#nowTotalPages").text($("#totalPages").val())
+                    $("#nowDataSize").text($("#dataSize").val())
+                    $("#nowCurrentPage").val($("#currentPage").val())
+
+                } else {
+                    $("#booksTable").empty()
+                }
+
+            })
+        };
+
+
+        $("#findByUsername").click(function () {
+            $("#select").attr("name", "username")
+            $("#select").val($("#findUser").val())
+            $("#currentPage").val("1");
+            pageFunction()
+        })
+        $("#findByName").click(function () {
+            $("#select").attr("name", "name")
+            $("#select").val($("#findUser").val())
+            $("#currentPage").val("1");
+            pageFunction()
+        })
+
+
+        $("#lastPage").click(function () {
+            pageFunction("lastPage")
+        })
+
+        $("#nextPage").click(function () {
+            pageFunction("nextPage")
+        })
+
+        $("#change").click(function () {
+            if (isNaN($("#nowCurrentPage").val()) && isNaN($("#nowDataSize").val())) {
+                alert("请输入正确的信息")
+            } else {
+                $("#currentPage").val($("#nowCurrentPage").val())
+                $("#dataSize").val($("#nowDataSize").text())
+            }
+            pageFunctionGroup("")
+        })
+
+
+    </script>
+</body>
+
+</html>

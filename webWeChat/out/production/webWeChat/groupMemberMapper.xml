@@ -1,0 +1,28 @@
+<mapper namespace="com.dzt.dao.GroupMemberDao" entity="com.dzt.entity.GroupMember">
+    <select id="selectGroupLord" >
+        select * from group_member where group_id=? and power=3
+    </select>
+    <select id="getManagement" >
+        select * from group_member where group_id=? and power in (2,3)
+    </select>
+    <select id="getMember" >
+        select * from group_member where group_id=? and user_id=?
+    </select>
+    <select id="getGroupMember" resultType="com.dzt.bean.selectBean.GroupUser" >
+        SELECT * from
+        (SELECT user_id,vest,power from group_member where group_id=?) g
+        JOIN
+        (SELECT id ,name,profile  from user) u
+        on
+        u.id = g.user_id
+    </select>
+    <update id="saveVest">
+        update group_member set vest=? where group_id=? and user_id=?
+    </update>
+    <update id="updatePower">
+        update group_member set power=? where group_id=? and user_id=?
+    </update>
+    <delete id="deleteMember">
+        delete from group_member where group_id=? and user_id=?
+    </delete>
+</mapper>

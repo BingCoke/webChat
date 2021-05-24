@@ -1,0 +1,15 @@
+<mybatis>
+    <dataSource>webChat</dataSource>
+    <mapper>userMapper.xml</mapper>
+    <mapper>messageMapper.xml</mapper>
+    <mapper>personRelationshipMapper.xml</mapper>
+    <mapper>groupMemberMapper.xml</mapper>
+    <mapper>userGroupMapper.xml</mapper>
+    <mapper>unreadMsgMapper.xml</mapper>
+    <mapper>unLookMapper.xml</mapper>
+    <mapper>momentMapper.xml</mapper>
+    <mapper>momentLikeMapper.xml</mapper>
+    <mapper>commentMapper.xml</mapper>
+    <mapper>adminMapper.xml</mapper>
+    <mapper>expressionMapper.xml</mapper>
+</mybatis>

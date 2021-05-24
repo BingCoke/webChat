@@ -1,0 +1,193 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../../static/layui/css/layui.css">
+</head>
+
+<body>
+    <div class="layui-tab">
+        <ul class="layui-tab-title">
+            <li class="layui-this">用户信息</li>
+            <li>
+                朋友圈
+            </li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show" id="information">
+                <img src="" id="profile" class="layui-nav-img">
+                <p id="name"></p><br>
+                <div id="status"></div>
+                <hr>
+                <form style="display: none;" id="mute" class="layui-form" action=""></form>
+            </div>
+            <div class="layui-tab-item">
+                <div id="moments">
+
+                </div>
+
+                当前页 : <input type="text" id="nowCurrentPageMoment" value="1"><button id="changeMoment">改变</button><br>
+                <button id="lastPageMoment">上一页</button>
+                <button id="nextPageMoment">下一页</button>
+
+                <form style="display: none" id="putFormMoment">
+                    <input name="currentPage" id="currentPageMoment" value="1">
+                    <input name="dataSize" id="dataSizeMoment" value="10">
+                    <input name="totalPages" id="totalPagesMoment" value="">
+                    <input name="totalDateSize" id="totalDateSizeMoment" value="">
+                </form>
+            </div>
+        </div>
+
+        <script src="../../static/layui/layui.js"></script>
+        <script src="../../static/js/jquery.js"></script>
+        <script src="../../static/js/my.js"></script>
+        <script>
+
+            $.get("/admin/getUserInformation", function (res) {
+                var data = res.data
+                $("#profile").attr("src", "/img/" + data.profile)
+                $("#name").html(data.name)
+                if (data.power == 2) {
+                    $("#status").html("游客")
+                } else if (data.power == 1) {
+                    sealFunction()
+                } else {
+                    removeSealFunction()
+                }
+            })
+
+            function sealFunction() {
+
+                $("#status").html('<button id="toSeal" >封号</button>')
+                $("#mute").append(
+                    '<div class="layui-form-item">' +
+                    '<label class="layui-form-label">请填写要封号的时间,单位天</label>' +
+                    '<div class="layui-input-block">' +
+                    '<input type="number" id="date">' +
+                    '</div>' +
+                    '</div>' +
+                    '<button type="button" id="sub" >提交封号</button>'
+                )
+
+                $("#toSeal").click(function () {
+                    var show = $('#mute').css('display');
+                    $("#mute").css('display', (show == 'block' ? 'none' : 'block'))
+                })
+
+                $("#sub").click(function () {
+                    if (/^[1-9]\d*$/.test($("#date").val()) && $("#date").val() != "") {
+                        console.log("sssss")
+                        $.get("/admin/sealUser?date=" + $("#date").val(), function (res) {
+                            if(res.code == 200){
+                                removeSealFunction()
+                            }
+
+                            layer.msg(res.msg)
+                        })
+                    } else {
+                        layer.msg("请输入正确的时间")
+                    }
+                })
+            }
+
+            function removeSealFunction() {
+                $("#mute").empty()
+                $("#status").html('<button id="toSeal" >解除封号</button>')
+                $("#toSeal").click(function () {
+                    $.get("/admin/removeSeal", function (res) {
+                        sealFunction()
+                        layer.msg(res.msg)
+                    })
+                })
+            }
+
+
+
+            function pageFunctionMoment(type) {
+                if (type == "lastPage") {
+                    $("#currentPageMoment").val(parseInt($("#currentPageMoment").val()) == 1 ? 1 : parseInt($("#currentPageMoment").val()) - 1)
+                } else if (type == "nextPage") {
+                    $("#currentPageMoment").val((parseInt($("#currentPageMoment").val()) == parseInt($("#totalPagesMoment").val()) ? parseInt($("#totalPagesMoment").val()) : parseInt($("#currentPageMoment").val()) + 1))
+                }
+
+                $.post("/admin/getUserMoment?ver=" + Math.random(), $("#putFormMoment").serialize(), function (data) {
+                    $("#moments").empty()
+                    if (data.code == 200) {
+                        for (let i = 0; i < data.data.data.length; i++) {
+                            var str =
+                                '<div class="layui-panel" ><div style="padding: 30px;">' +
+                                data.data.data[i].remark + '<img src="/img/' + data.data.data[i].profile + '"  class="layui-nav-img">  时间' + format(data.data.data[i].time) + '<br>' +
+                                data.data.data[i].content
+                                + '<button class="layui-btn layui-btn-sm" id="moment' + data.data.data[i].id + '" style="float: right;">查看</button>'
+
+                            str = str + '<button class="layui-btn layui-btn-sm" id="momentDelete' + data.data.data[i].id + '" style="float: right;">删除</button>'
+                            str = str + '</div></div>'
+                            $("#moments").append(str)
+                            $("#moment" + data.data.data[i].id).attr("data", JSON.stringify(data.data.data[i]))
+                            $("#moment" + data.data.data[i].id).click(function () {
+                                $.post("/admin/toLookMoment", JSON.parse($(this).attr("data")), function (res) {
+                                    console.log(res.code)
+                                    console.log(res.code == 200)
+                                    if (res.code == 200) {
+                                        layer.open({
+                                            type: 2,
+                                            content: ['/admin/toLookMomentDo'],
+                                            area: ['500px', '430px'],
+                                            offset: '100px'
+                                        });
+
+                                    } else {
+                                        layer.msg(res.msg)
+                                    }
+                                })
+                            })
+                            $("#momentDelete" + data.data.data[i].id).attr("data", JSON.stringify(data.data.data[i]))
+                            $("#momentDelete" + data.data.data[i].id).click(function () {
+                                $(this).parent().parent().remove();
+                                $.post("/admin/deleteMoment", JSON.parse($(this).attr("data")), function (res) {
+                                    layer.msg(res.msg)
+                                })
+                            })
+                        }
+                        console.log(data.data)
+                        $("#currentPageMoment").val(data.data.currentPage)
+                        $("#dataSizeMoment").val(data.data.dataSize)
+                        $("#totalPagesMoment").val(data.data.totalPages)
+                        $("#totalDateSizeMoment").val(data.data.totalDateSize)
+
+                        $("#nowTotalPagesMoment").text($("#totalPagesMoment").val())
+                        $("#nowCurrentPageMoment").val($("#currentPageMoment").val())
+
+                    } else {
+                        $("#Friendmoments").empty()
+                    }
+
+                })
+            };
+            $("#lastPageMoment").click(function () {
+                pageFunctionMoment("lastPage")
+            })
+
+            $("#nextPageMoment").click(function () {
+                pageFunctionMoment("nextPage")
+            })
+
+            $("#changeMoment").click(function () {
+                if (isNaN($("#nowCurrentPageMoment").val()) && isNaN($("#nowDataSizeMoment").val())) {
+                    alert("请输入正确的信息")
+                } else {
+                    $("#currentPageMoment").val($("#nowCurrentPageMoment").val())
+                    $("#dataSizeMoment").val($("#nowDataSizeMoment").text())
+                }
+                pageFunctionMoment("")
+            })
+            pageFunctionMoment()
+
+        </script>
+</body>
+
+</html>

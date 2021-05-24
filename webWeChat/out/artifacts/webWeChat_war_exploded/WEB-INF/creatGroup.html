@@ -1,0 +1,59 @@
+<html lang="en">
+  <!DOCTYPE html>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>创建群</title>
+  <link rel="stylesheet" href="../static/layui/css/layui.css">
+</head>
+
+<body>
+  <form class="layui-form" style="width: 500px;" id="groupInformation">
+    <div class="layui-form-item">
+      <label class="layui-form-label">群名</label>
+      <div class="layui-input-block">
+        <input type="text" name="groupName" required lay-verify="required" placeholder="请输入群名" autocomplete="off"
+          class="layui-input">
+      </div>
+    </div>
+
+    <div class="layui-form-item">
+      <label class="layui-form-label">复选框</label>
+      <div class="layui-input-block" id="friendBox">
+      </div>
+    </div>
+
+    <div class="layui-form-item">
+      <div class="layui-input-block">
+        <button type="button" class="layui-btn" id="put">立即提交</button>
+      </div>
+    </div>
+  </form>
+  <script type="text/javascript" src="../static/js/my.js"></script>
+  <script src="../static/layui/layui.js"></script>
+  <script src="../static/js/jquery.js"></script>
+  <script>
+
+    $.get("/friend/getMyFriends", function (res) {
+      
+      for (var i = 0; i < res.data.length; i++) {
+        $("#friendBox").append(
+          '<img class="layui-nav-img"  width="150" src="/img/'+ res.data[i].profile +'" id="profile" >' +
+          '<input type="checkbox" name="friend" value="'+ res.data[i].userId +'" title="'+ res.data[i].remark +'">'
+        )
+      }
+      var form = layui.form;
+      form.render('checkbox');
+    })
+
+
+    $("#put").click(function () {
+      $.post("/group/creat", $("#groupInformation").serialize(), function (res) {
+        layer.msg(res.msg)
+        window.close();
+      })
+    })
+  </script>
+</body>
+</html>

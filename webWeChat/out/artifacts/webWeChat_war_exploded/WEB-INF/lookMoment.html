@@ -1,0 +1,129 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>朋友圈</title>
+    <link rel="stylesheet" href="../static/layui/css/layui.css">
+</head>
+
+<body>
+
+    <div id="moment">
+    </div>
+    <hr>
+    <div style="overflow-y:auto;max-height: 150px;" id="commentDiv">
+
+    </div>
+    <div>
+        <input type="text" id="comment" required lay-verify="required" placeholder="send" autocomplete="off"
+            class="layui-input">
+        <label id="status">评论</label><button class="layui-btn layui-btn-sm" id="momentComment" style="float: right;">评论</button><button class="layui-btn layui-btn-sm" id="send" style="float: right;">发送</button>
+    </div>
+
+
+    <script type="text/javascript" src="../static/js/my.js"></script>
+    <script src="../static/layui/layui.js"></script>
+    <script src="../static/js/jquery.js"></script>
+    <script>
+        var user = JSON.parse(sessionStorage.getItem('user'))
+        function getComment() {
+            $("#commentDiv").empty()
+            $.get("/comment/getComment", function (res) {
+                for (var i = 0; i < res.data.length; i++) {
+                    var data = res.data[i]
+                    str = '<div class="layui-panel"><div style="padding: 30px;"><img src="/img/' + data.profile + '" class="layui-nav-img">'
+                    if (data.status == 0) {
+                        str = str + data.userName + ':' + data.content
+                    } else {
+                        
+                        str = str + data.userName + " 回复 " + data.upUserName + ':' + data.content
+                    }
+
+                    if (data.userId == user.id){
+                        str = str + '<button class="layui-btn layui-btn-sm" id="delete'+ data.id +'" style="float: right;">删除</button>'
+                    } else {
+                        str = str + '<button class="layui-btn layui-btn-sm" id="comment'+ data.id +'" style="float: right;">回复</button>'
+                    }
+
+                    str = str + '</div></div>'
+                    $("#commentDiv").append(str)
+
+                    if (data.userId == user.id){
+                        $("#delete" + data.id).attr("data",JSON.stringify(data))
+                        $("#delete" + data.id).click(function(){
+                            $.post("/comment/deleteComment",JSON.parse($(this).attr("data")),function(res){
+                                getComment()
+                                //$(this).parent().parent().remove()
+                                if(res.data == 500){
+                                    layer.msg(res.msg)
+                                }
+                            })
+                        })
+                    } else {
+                        $("#comment" + data.id).attr("data",JSON.stringify(data))
+                        $("#comment" + data.id).click(function(){
+                            var data = JSON.parse( $(this).attr("data"))
+                            now.ctype = "0"
+                            now.mid = data.id
+                            $("#status").html("回复" + data.userName)
+                        })
+                    }
+                }
+            })
+        }
+
+        getComment()
+
+        var like = 0;
+        var now = {};
+        //type为1的时候是评论，0的时候是回复
+        now.ctype = "1";
+        $.get("/moment/getInformation", function (res) {
+            var publisher = res.data.publisher
+            var str =
+                '<div class="layui-panel" ><div style="padding: 60px;">' +
+                publisher.remark + '<img src="/img/' + publisher.profile + '" class="layui-nav-img">  时间' + format(publisher.time) + '<br>' +
+                publisher.content
+                + '<br><span style="float: right;">点赞数<p id="likeCount" >' + res.data.like + '</p>  <p class="like">&#10084;</p></span> '
+            str = str + '</div></div>'
+            $("#moment").append(str);
+            if (res.data.isLike) {
+                $(".like").toggleClass('cs');
+                like = 1;
+            }
+            $(".like").click(function () {
+                $(this).toggleClass('cs');
+                if (like == 1) {
+                    like = 0;
+                    $("#likeCount").text(parseInt($("#likeCount").text()) - 1)
+                } else {
+                    like = 1;
+                    $("#likeCount").text(parseInt($("#likeCount").text()) + 1)
+                }
+                $.get("/moment/like?like=" + like, function (res) {
+                    if (res.data == 500) {
+                        layer.msg(res.msg)
+                    }
+                })
+            })
+
+            $("#momentComment").click(function () {
+                now.ctype = "1";
+                $("#status").html("评论")
+            })
+
+            $("#send").click(function () {
+                now.content = $("#comment").val();
+                $.post("/comment/sendComment", now, function (res) {
+                    $("#comment").val("")
+                    getComment()
+                })
+            })
+        })
+
+    </script>
+</body>
+
+</html>
