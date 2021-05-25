@@ -19,13 +19,13 @@
 <body>
     <ul class="layui-nav">
         <li class="layui-nav-item">
-            <a class="nav">聊天<span class="layui-badge">9</span></a>
+            <a class="nav">聊天</a>
         </li>
         <li class="layui-nav-item">
-            <a class="nav">通讯录<span class="layui-badge-dot"></span></a>
+            <a class="nav">通讯录</a>
         </li>
         <li class="layui-nav-item">
-            <a class="nav">朋友圈<span class="layui-badge-dot"></span></a>
+            <a class="nav">朋友圈</a>
         </li>
         <li class="layui-nav-item ">
             <a id="my"></a>
@@ -293,11 +293,11 @@
         } else {
             if (user.power == 1) {
                 $("#my").html('<img src="/img/' + user.profile + '" id="profile" class="layui-nav-img">' + user.name)
-                if (user.back != "" || user.back != undefined) {
+                if (user.back != "" && user.back != undefined) {
                     $("#chatDiv").css("background-image", 'url("/img/' + user.back + '")')
-                } else {
-                    location.href = "/tourist.html"
                 }
+            } else if(user.power == 2){
+                location.href = "/tourist.html"
             }
 
         }
@@ -339,11 +339,11 @@
 
                     $.removeCookie("user")
 
-                    if (back != undefined || back != "") {
+                    if (back != undefined && back != "") {
                         $("#chatDiv").css("background-image", 'url("/img/' + back + '")')
                         user.back = back
                     }
-                    if (profile != undefined || profile != "") {
+                    if (profile != undefined && profile != "") {
                         $("#profile").attr("src", "/img/" + profile)
                         user.profile = profile
                     }

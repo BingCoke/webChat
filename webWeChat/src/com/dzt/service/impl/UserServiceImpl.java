@@ -33,11 +33,12 @@ import java.util.concurrent.TimeUnit;
  * @author Z
  */
 public class UserServiceImpl implements UserService {
-    private final UserDao userDao = DaoFacory.getWebChatDao(UserDao.class);
+    private UserDao userDao = DaoFacory.getWebChatDao(UserDao.class);
     private PersonRelationshipService personRelationshipService = BeanFactory.getBean(PersonRelationShipServiceImpl.class);
     @Override
     public void register(User user) {
         user.setPassword(DigestUtils.md5Hex(user.getPassword()));
+        user.setPower(1);
         userDao.add(user);
     }
 
@@ -93,20 +94,22 @@ public class UserServiceImpl implements UserService {
             //保证文件名字不会重复
             fileName = UUID.randomUUID() +"_"+ profile.getSubmittedFileName();
             //创建文件夹
-            File file = new File("./img/"+ prePath);
+            File file = new File("C://img/"+ prePath);
             file.mkdirs();
             //把头像拷贝到指定的文件夹
-            outputStream = new FileOutputStream( "./img/"+ prePath + fileName);
+            outputStream = new FileOutputStream( "C:/img/"+ prePath + fileName);
+            System.out.println(outputStream);
             byte[] buf = new byte[512];
             int len = 0;
             while ((len = inputStream.read(buf)) != -1){
                 outputStream.write(buf,0,len);
             }
-            userDao.saveProfile(prePath + fileName,username);
         } finally {
             inputStream.close();
+            outputStream.flush();
             outputStream.close();
         }
+        userDao.saveProfile(prePath + fileName,username);
         return prePath + fileName;
     }
 
@@ -220,27 +223,31 @@ public class UserServiceImpl implements UserService {
             //保证文件名字不会重复
             fileName = UUID.randomUUID() +"_"+ part.getSubmittedFileName();
             //创建文件夹
-            File file = new File("./img/"+ prePath);
+            File file = new File("C://img/"+ prePath);
             file.mkdirs();
             //把头像拷贝到指定的文件夹
-            outputStream = new FileOutputStream( "./img/"+ prePath + fileName);
+            outputStream = new FileOutputStream( "C://img/"+ prePath + fileName);
             byte[] buf = new byte[512];
             int len = 0;
             while ((len = inputStream.read(buf)) != -1){
                 outputStream.write(buf,0,len);
             }
+
             userDao.saveBack(prePath + fileName,user.getId());
         } finally {
             inputStream.close();
             outputStream.close();
         }
+        File file = new File("C://img/"+ prePath + fileName);
+        System.out.println(file.exists());
+        System.out.println(file.getAbsolutePath());
         return prePath + fileName;
     }
 
     @Override
     public String saveFile(Part part) throws IOException {
         InputStream inputStream = null;
-        OutputStream outputStream = null;
+        FileOutputStream outputStream = null;
         String prePath = null;
         String fileName = null;
         try{
@@ -250,10 +257,12 @@ public class UserServiceImpl implements UserService {
             //保证文件名字不会重复
             fileName = UUID.randomUUID() +"_"+ part.getSubmittedFileName();
             //创建文件夹
-            File file = new File("./file/"+ prePath);
+            File file = new File("C://file/"+ prePath);
+            System.out.println(file.exists());
             file.mkdirs();
-            //把头像拷贝到指定的文件夹
-            outputStream = new FileOutputStream( "./file/"+ prePath + fileName);
+            System.out.println(file.exists());
+            //文件拷贝到指定的文件夹
+            outputStream = new FileOutputStream( "C://file/"+ prePath + fileName);
             byte[] buf = new byte[512];
             int len = 0;
             while ((len = inputStream.read(buf)) != -1){

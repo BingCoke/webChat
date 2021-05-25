@@ -28,15 +28,14 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.List;
 
 public class SercideTest {
     @Test
     public void test1(){
-
-        UserService userService = BeanFactory.getBean(UserServiceImpl.class);
-        System.out.println(userService);
-        System.out.println(userService.hasUsername("dffg"));
+UserDao userDao = DaoFacory.getWebChatDao(UserDao.class);
+userDao.saveProfile("1233321","1233321");
     }
 
 
@@ -220,6 +219,12 @@ public class SercideTest {
     public void test32(){
         MessageDao messageDao = DaoFacory.getWebChatDao(MessageDao.class);
         messageDao.getGroupMessage(5,0,10);
+    }
+
+    @Test
+    public void test5(){
+        Calendar calendar = Calendar.getInstance();
+        System.out.println(calendar.get(Calendar.MONTH));
     }
 
 

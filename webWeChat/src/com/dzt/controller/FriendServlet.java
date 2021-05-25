@@ -174,6 +174,12 @@ public class FriendServlet extends MyServlet {
         MyFriend myFriend = (MyFriend) session.getAttribute("myFriendToLook");
         User user = (User) req.getSession().getAttribute("user");
         prService.deleteFriend(user.getId(),myFriend.getUserId());
+        Message message = new Message(user.getId(),myFriend.getUserId(),12,"");
+        ConcurrentHashMap<Integer, Msg> webSocketMap = Msg.getWebSocketMap();
+        if (webSocketMap.containsKey(myFriend.getUserId())) {
+            Msg msg = webSocketMap.get(myFriend.getUserId());
+            msg.sendMessage(message);
+        }
         PrintWriter writer = resp.getWriter();
         writer.write(MyResult.build().setCode(200).setMsg("删除好友成功").toJson());
     }
@@ -203,6 +209,12 @@ public class FriendServlet extends MyServlet {
         User user = (User) session.getAttribute("user");
         personRelationshipService.add(new PersonRelationship(sender.getUserId(),user.getId(),user.getName(),0));
         personRelationshipService.add(new PersonRelationship(user.getId(),sender.getUserId(),sender.getName(),0));
+        Message message = new Message(user.getId(),sender.getUserId(),12,user.getName() + "同意了你的请求");
+        ConcurrentHashMap<Integer, Msg> webSocketMap = Msg.getWebSocketMap();
+        if (webSocketMap.containsKey(sender.getUserId())) {
+            Msg msg = webSocketMap.get(sender.getUserId());
+            msg.sendMessage(message);
+        }
         PrintWriter writer = resp.getWriter();
         writer.write(MyResult.build().setCode(200).setMsg("增加好友成功").toJson());
     }

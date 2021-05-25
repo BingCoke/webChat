@@ -251,16 +251,10 @@ function getFriendApplication() {
 
                 $.post("/friend/passApplication", JSON.parse($(this).attr("data")), function (res) {
                     layer.msg(res.msg)
-                    var data = JSON.parse($(this).attr("data"))
-                    var back = new Msg(12, user.id, data.userId, user.name + "同意了你的好友申请")
-                    ws.send(JSON.stringify(back))
                 })
             })
             $("#refuse" + res.data[i].userId).click(function () {
                 $(this).parent().parent().remove();
-                var data = JSON.parse($(this).attr("data"))
-                var back = new Msg(9, user.id, data.userId, user.name + "拒绝了你的好友申请")
-                ws.send(JSON.stringify(back))
                 $.post("/friend/refuseApplication", JSON.parse($(this).attr("data")), function (res) {
                     layer.msg(res.msg)
                 })
@@ -335,30 +329,30 @@ function getFriendChat() {
     $.get("/friend/getMyFriends", function (res) {
         $("#friendChat").empty()
         for (var i = 0; i < res.data.length; i++) {
-            if (friendChatMap["" + res.data[i].userId] == undefined) {
-                $("#friendChat").append(
-                    '<li id="friend' + res.data[i].userId + '" >' +
-                    '<img src="/img/' + res.data[i].profile + '" id="profile" class="layui-nav-img">' + res.data[i].remark + '<span id="span' + res.data[i].userId + '"></span>' +
-                    '</li>'
-                )
-                $("#friend" + res.data[i].userId).attr("data", JSON.stringify(res.data[i]))
-                $("#friend" + res.data[i].userId).click(function () {
-                    $("#free").empty()
-                    var date = JSON.parse($(this).attr("data"))
-                    who.mtype = 1;
-                    who.id = date.userId
-                    if (userAuthorities["" + date.userId] == 1) {
-                        $("#sendMsg").css("display", 'none')
-                    } else {
-                        $("#sendMsg").css("display", 'block')
-                    }
-                    getChatArea()
-                    deleteMyFriendMsg()
-                    $("#span" + who.id).html("")
-                    $("#span" + who.id).attr("class", "")
-                    friendCount['' + who.id] = 0;
-                })
 
+            $("#friendChat").append(
+                '<li id="friend' + res.data[i].userId + '" >' +
+                '<img src="/img/' + res.data[i].profile + '" id="profile" class="layui-nav-img">' + res.data[i].remark + '<span id="span' + res.data[i].userId + '"></span>' +
+                '</li>'
+            )
+            $("#friend" + res.data[i].userId).attr("data", JSON.stringify(res.data[i]))
+            $("#friend" + res.data[i].userId).click(function () {
+                $("#free").empty()
+                var date = JSON.parse($(this).attr("data"))
+                who.mtype = 1;
+                who.id = date.userId
+                if (userAuthorities["" + date.userId] == 1) {
+                    $("#sendMsg").css("display", 'none')
+                } else {
+                    $("#sendMsg").css("display", 'block')
+                }
+                getChatArea()
+                deleteMyFriendMsg()
+                $("#span" + who.id).html("")
+                $("#span" + who.id).attr("class", "")
+                friendCount['' + who.id] = 0;
+            })
+            if (friendChatMap["" + res.data[i].userId] == undefined) {
                 friendCount['' + res.data[i].userId] = 0;
                 friendChatMap.set("" + res.data[i].userId, new Array())
             }
@@ -370,53 +364,53 @@ function getGroupChat() {
     $.get("/group/getMyGroups", function (res) {
         $("#groupChat").empty()
         for (var i = 0; i < res.data.length; i++) {
-            if (groupChatMap["" + res.data[i]] == undefined) {
-                $("#groupChat").append(
-                    '<li id="group' + res.data[i].id + '" >' +
-                    '<img src="/img/group.jpg" id="profile" class="layui-nav-img">' + res.data[i].name + '<span id="spanGroup' + res.data[i].id + '"></span>' +
-                    '</li>'
-                )
-                $("#group" + res.data[i].id).attr("data", JSON.stringify(res.data[i]))
-                $("#group" + res.data[i].id).click(function () {
-                    $("#free").empty()
-                    var date = JSON.parse($(this).attr("data"))
-                    who.mtype = 2;
-                    who.id = date.id;
-                    if (groupAuthorities["" + date.id] == 0) {
-                        $("#sendMsg").css("display", 'none')
-                    } else {
-                        $("#sendMsg").css("display", 'block')
-                    }
-                    getChatArea()
-                    deleteMyGroupMsg()
-                    $("#spanGroup" + who.id).html("")
-                    $("#spanGroup" + who.id).attr("class", "")
-                    if (groupAnnouncement.get("" + who.id) != "" && groupAnnouncement.get("" + who.id) != undefined) {
-                        layer.open({
-                            type: 1
-                            , title: false //不显示标题栏
-                            , closeBtn: false
-                            , area: '300px;'
-                            , shade: 0.8
-                            , id: 'LAY_layuipro' //设定一个id，防止重复弹出
-                            , btn: ['确定']
-                            , btnAlign: 'c'
-                            , moveType: 1 //拖拽模式，0或者1
-                            , content: groupAnnouncement.get("" + who.id)
-                            , success: function (layero) {
-                                var btn = layero.find('.layui-layer-btn');
-                                $(btn).click(function () {
-                                    $.get("/group/deleteMyAnnouncement?groupId=" + who.id)
-                                    groupAnnouncement.set("" + who.id, "")
-                                })
-                            }
-                        });
-                    }
-                })
-                if (groupAnnouncement.get("" + who.id) != "" || groupAnnouncement.get("" + who.id) == undefined) {
-                    groupAnnouncement.set("" + res.data[i].id, "")
-                }
 
+            $("#groupChat").append(
+                '<li id="group' + res.data[i].id + '" >' +
+                '<img src="/img/group.jpg" id="profile" class="layui-nav-img">' + res.data[i].name + '<span id="spanGroup' + res.data[i].id + '"></span>' +
+                '</li>'
+            )
+            $("#group" + res.data[i].id).attr("data", JSON.stringify(res.data[i]))
+            $("#group" + res.data[i].id).click(function () {
+                $("#free").empty()
+                var date = JSON.parse($(this).attr("data"))
+                who.mtype = 2;
+                who.id = date.id;
+                if (groupAuthorities["" + date.id] == 0) {
+                    $("#sendMsg").css("display", 'none')
+                } else {
+                    $("#sendMsg").css("display", 'block')
+                }
+                getChatArea()
+                deleteMyGroupMsg()
+                $("#spanGroup" + who.id).html("")
+                $("#spanGroup" + who.id).attr("class", "")
+                if (groupAnnouncement.get("" + who.id) != "" && groupAnnouncement.get("" + who.id) != undefined) {
+                    layer.open({
+                        type: 1
+                        , title: false //不显示标题栏
+                        , closeBtn: false
+                        , area: '300px;'
+                        , shade: 0.8
+                        , id: 'LAY_layuipro' //设定一个id，防止重复弹出
+                        , btn: ['确定']
+                        , btnAlign: 'c'
+                        , moveType: 1 //拖拽模式，0或者1
+                        , content: groupAnnouncement.get("" + who.id)
+                        , success: function (layero) {
+                            var btn = layero.find('.layui-layer-btn');
+                            $(btn).click(function () {
+                                $.get("/group/deleteMyAnnouncement?groupId=" + who.id)
+                                groupAnnouncement.set("" + who.id, "")
+                            })
+                        }
+                    });
+                }
+            })
+            if (groupAnnouncement.get("" + who.id) != "" || groupAnnouncement.get("" + who.id) == undefined) {
+                groupAnnouncement.set("" + res.data[i].id, "")
+            }
+            if (groupChatMap["" + res.data[i]] == undefined) {
                 groupChatMap.set("" + res.data[i].id, new Array())
                 groupCount['' + res.data[i].id] = 0;
             }
@@ -464,9 +458,6 @@ function getGroupApplication() {
             $("#passGroup" + res.data[i].msgId).click(function () {
                 $(this).parent().parent().remove();
                 $.post("/group/passApplication", JSON.parse($(this).attr("data")), function (res) {
-                    var data = JSON.parse($(this).attr("data"))
-                    var back = new Msg(13, user.id, data.userId, "")
-                    ws.send(JSON.stringify(back))
                     layer.msg(res.msg)
                 })
             })

@@ -355,6 +355,12 @@ public class GroupServlet extends MyServlet {
         if (power == 2 || power == 3){
             groupMemberService.removeMember(groupToLook.getId(),groupUser.getUserId());
             resp.getWriter().write(MyResult.build().setMsg("已经将该成员踢出").toJson());
+            Message message = new Message(0,0,13,"");
+            ConcurrentHashMap<Integer, Msg> webSocketMap = Msg.getWebSocketMap();
+            if (webSocketMap.containsKey(groupUser.getUserId())) {
+                Msg msg = webSocketMap.get(groupUser.getUserId());
+                msg.sendMessage(message);
+            }
         } else {
             resp.getWriter().write(MyResult.build().setCode(308).setMsg("你没有权限").toJson());
         }
