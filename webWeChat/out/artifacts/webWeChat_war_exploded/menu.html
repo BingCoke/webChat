@@ -271,8 +271,13 @@
     <script src="/static/js/xss.js"></script>
     <script>
 
+        window.onload = function(){
+            getUser()
+        }
+        
 
 
+        var user = JSON.parse(sessionStorage.getItem('user'))
         for (var i = 0; i < $(".nav").length; i++) {
             $(".nav")[i].setAttribute("index", i)
             $($(".nav")[i]).click(function () {
@@ -284,10 +289,7 @@
             })
         }
 
-        getUser()
 
-
-        var user = JSON.parse(sessionStorage.getItem('user'))
         if (user == undefined) {
             location.href = "/login.jsp"
         } else {
@@ -296,7 +298,7 @@
                 if (user.back != "" && user.back != undefined) {
                     $("#chatDiv").css("background-image", 'url("/img/' + user.back + '")')
                 }
-            } else if(user.power == 2){
+            } else if (user.power == 2) {
                 location.href = "/tourist.html"
             }
 
@@ -400,7 +402,7 @@
             ; ws.close();
         }
 
-        
+
         /*
          *  聊天相关
          */

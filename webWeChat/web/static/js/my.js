@@ -7,6 +7,7 @@ function getUser() {
         success: function (data) {
             if (data.code == 200) {
                 console.log(data)
+                debugger
                 var user = data.data
                 if (user.power == 0) {
                     $.removeCookie("user", {
@@ -251,6 +252,9 @@ function getFriendApplication() {
 
                 $.post("/friend/passApplication", JSON.parse($(this).attr("data")), function (res) {
                     layer.msg(res.msg)
+                    if(res.code == 200){
+                        getFriends()
+                    }
                 })
             })
             $("#refuse" + res.data[i].userId).click(function () {
@@ -479,11 +483,27 @@ function getGroups() {
                 "<td>" + "<button class='layui-btn layui-btn-xs' id='lookGroup" + res.data[i].id + "'>查看</button>" + "</td>"
 
             str = str + "<td>" + "<button class='layui-btn layui-btn-xs' id='groupVest" + res.data[i].id + "'>更改群名片</button>" + "</td>"
-
+            if( groupAnnouncement["" + res.data[i].id] != 3 ){
+                str = str + "<td>" + "<button class='layui-btn layui-btn-xs' id='gtoupDelete" + res.data[i].id + "'>退群！</button>" + "</td>"
+            }
+           
             str = str + "</tr>"
             $("#nowGroup").append(str)
             $("#lookGroup" + res.data[i].id).attr("data", JSON.stringify(res.data[i]))
             $("#groupVest" + res.data[i].id).attr("data", JSON.stringify(res.data[i]))
+            $("#gtoupDelete" + res.data[i].id).attr("data", res.data[i].id)
+
+            if( groupAnnouncement["" + res.data[i].id] != 3  ){
+                $("#gtoupDelete" + res.data[i].id).click(function(){
+                    $.get("/group/delete?id=" + $(this).attr("data"),function(res){
+                        if(res.code == 200){
+                            $(this).parent().parent().remove()
+                            getGroups()
+                        }
+                        layer.msg(res.msg)
+                    })
+                })
+            }
             $("#lookGroup" + res.data[i].id).click(function () {
                 $.post("/group/toLookGroup", JSON.parse($(this).attr("data")), function () {
                     layer.open({
@@ -496,7 +516,6 @@ function getGroups() {
                     });
                 })
             })
-            if (groupAuthorities["" + res.data[i].id] == 2 || groupAuthorities["" + res.data[i].id] == 3) {
                 $("#groupVest" + res.data[i].id).click(function () {
                     $.post("/group/toLookGroupVest", JSON.parse($(this).attr("data")), function () {
                         layer.open({
@@ -506,8 +525,6 @@ function getGroups() {
                         });
                     })
                 })
-            }
-
         }
     })
 }

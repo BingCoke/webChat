@@ -41,7 +41,7 @@ public class UserServlet  extends MyServlet{
     private UserService userService = BeanFactory.getBean(UserServiceImpl.class);
     private MessageService messageService = BeanFactory.getBean(MessageServiceImpl.class);
 
-    private static String[] white = new String[]{"verify","userToLogin","autoLogin","checkUser","userRegister","sendRegisterCode","findProfile","findPassword","sendMailToFindPassword"};
+    private static String[] white = new String[]{"verify","userToLogin","autoLogin","checkUser","userRegister","sendRegisterCode","findProfile","findPassword","sendMailToFindPassword","getUser"};
     @Override
     public boolean filter(HttpServletRequest req) {
         String pathInfo = req.getPathInfo().substring(1);
@@ -239,6 +239,7 @@ public class UserServlet  extends MyServlet{
      * @param resp
      * @throws IOException
      */
+    @ToJSON
     public void sendMailToFindPassword(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String username = req.getParameter("username");
         User user = userService.selectByUsername(username);
@@ -280,6 +281,7 @@ public class UserServlet  extends MyServlet{
                     int userId = (int) session.getAttribute("userIdToFindPassword");
                     userService.updatePassword(password,userId);
                     writer.write(MyResult.build().setCode(200).setMsg("成功修改密码").toJson());
+
                 }
             } else {
                 writer.write(MyResult.build().setCode(305).setMsg("验证码错误").toJson());

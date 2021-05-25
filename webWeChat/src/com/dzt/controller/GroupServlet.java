@@ -16,6 +16,7 @@ import com.dzt.service.*;
 import com.dzt.service.impl.*;
 import com.dzt.util.StringUtil;
 import com.dzt.util.ToObjectUtil;
+import com.sun.org.apache.regexp.internal.RE;
 import org.junit.Test;
 
 
@@ -102,6 +103,11 @@ public class GroupServlet extends MyServlet {
             for (String friend : friends) {
                 int friendId = Integer.parseInt(friend);
                 groupMemberService.addMember(groupId,friendId,1);
+                ConcurrentHashMap<Integer, Msg> webSocketMap = Msg.getWebSocketMap();
+                if (webSocketMap.containsKey(friendId)){
+                    Message message = new Message(0,0,13,"");
+                    webSocketMap.get(friendId).getSession().getBasicRemote().sendText(MyResult.build().add("msg",message).toJson());
+                }
             }
         }
         HttpSession session = req.getSession();
@@ -330,7 +336,7 @@ public class GroupServlet extends MyServlet {
         GroupUser groupUser = ToObjectUtil.getObject(req,GroupUser.class);
         UserGroup groupToLook = (UserGroup) req.getSession().getAttribute("groupToLook");
         Map map = (Map) req.getSession().getAttribute("groupAuthorities");
-        int power = (int) map.get(groupToLook.getId());
+        int power = (int) map.get(groupToLook.getId() + "");
         if (power == 2 || power == 3){
             groupMemberService.saveVest(groupUser.getVest(),groupToLook.getId(),groupUser.getUserId());
             resp.getWriter().write(MyResult.build().setMsg("修改成功").toJson());
@@ -351,7 +357,7 @@ public class GroupServlet extends MyServlet {
         GroupUser groupUser = ToObjectUtil.getObject(req,GroupUser.class);
         UserGroup groupToLook = (UserGroup) req.getSession().getAttribute("groupToLook");
         Map map = (Map) req.getSession().getAttribute("groupAuthorities");
-        int power = (int) map.get(groupToLook.getId());
+        int power = (int) map.get(groupToLook.getId() + "");
         if (power == 2 || power == 3){
             groupMemberService.removeMember(groupToLook.getId(),groupUser.getUserId());
             resp.getWriter().write(MyResult.build().setMsg("已经将该成员踢出").toJson());
@@ -364,9 +370,20 @@ public class GroupServlet extends MyServlet {
         } else {
             resp.getWriter().write(MyResult.build().setCode(308).setMsg("你没有权限").toJson());
         }
-
-
     }
+
+    @ToJSON
+    public void delete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        int id = Integer.parseInt(req.getParameter("id"));
+        User user = (User) req.getSession().getAttribute("user");
+        if (groupMemberService.isHaveMember(id,user.getId())) {
+            groupMemberService.removeMember(id,user.getId());
+            resp.getWriter().write(MyResult.build().setMsg("已退出").setCode(200).toJson());
+        } else {
+            resp.getWriter().write(MyResult.build().setMsg("你不是群成员退个锤子").setCode(308).toJson());
+        }
+    }
+
 
     /**
      * 把某个群成员提升为管理或者群成员
@@ -381,7 +398,7 @@ public class GroupServlet extends MyServlet {
         UserGroup groupToLook = (UserGroup) req.getSession().getAttribute("groupToLook");
 
         Map map = (Map) req.getSession().getAttribute("groupAuthorities");
-        int power = (int) map.get(groupToLook.getId());
+        int power = (int) map.get(groupToLook.getId() + "");
         if (power == 2 || power == 3){
             if (groupUser.getPower() == 1){
                 groupMemberService.updatePower(2,groupToLook.getId(),groupUser.getUserId());
@@ -431,6 +448,7 @@ public class GroupServlet extends MyServlet {
      * @param resp
      * @throws IOException
      */
+    @ToJSON
     public void mute(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         int hours = Integer.parseInt(req.getParameter("hours"));
         int minutes = Integer.parseInt(req.getParameter("minutes"));
@@ -438,7 +456,9 @@ public class GroupServlet extends MyServlet {
         GroupUser groupUser = (GroupUser) req.getSession().getAttribute("groupUserToLook");
         UserGroup groupToLook = (UserGroup) req.getSession().getAttribute("groupToLook");
         Map map = (Map) req.getSession().getAttribute("groupAuthorities");
-        int power = (int) map.get(groupToLook.getId());
+        System.out.println(map.get(groupToLook.getId()));
+        System.out.println(groupToLook.getId());
+        int power = (int) map.get(groupToLook.getId() + "");
         if (power == 2 || power == 3){
             groupMemberService.mute(seconds,minutes,hours,groupToLook.getId(),groupUser.getUserId());
             ConcurrentHashMap<Integer, Msg> webSocketMap = Msg.getWebSocketMap();
@@ -465,7 +485,7 @@ public class GroupServlet extends MyServlet {
         String name = req.getParameter("name");
         UserGroup groupToLook = (UserGroup) req.getSession().getAttribute("groupToLook");
         Map map = (Map) req.getSession().getAttribute("groupAuthorities");
-        int power = (int) map.get(groupToLook.getId());
+        int power = (int) map.get(groupToLook.getId() + "");
         if (power == 2 || power == 3){
             groupToLook.setName(name);
             userGroupService.save(groupToLook);
