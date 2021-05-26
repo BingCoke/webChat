@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>朋友圈</title>
     <link rel="stylesheet" href="../static/layui/css/layui.css">
+    <link rel="stylesheet" href="../static/css/chat.css">
 </head>
 
 <body>
@@ -22,10 +23,10 @@
         <label id="status">评论</label><button class="layui-btn layui-btn-sm" id="momentComment" style="float: right;">评论</button><button class="layui-btn layui-btn-sm" id="send" style="float: right;">发送</button>
     </div>
 
-
+    <script src="../static/js/jquery.js"></script>
     <script type="text/javascript" src="../static/js/my.js"></script>
     <script src="../static/layui/layui.js"></script>
-    <script src="../static/js/jquery.js"></script>
+
     <script>
         var user = JSON.parse(sessionStorage.getItem('user'))
         function getComment() {
