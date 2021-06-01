@@ -43,13 +43,6 @@ public class MyMail {
         NEW_MAIL = oldMail;
 
     }
-    static {
-        try {
-            sender = new InternetAddress("1464008561@qq.com");
-        } catch (AddressException e) {
-            e.printStackTrace();
-        }
-    }
 
 
     public static void sendFindMsg(String address,String code){
