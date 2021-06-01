@@ -60,9 +60,6 @@
 
                     <div id="chatArea" contenteditable="true" style="width: 1042;height: 90;"></div>
                     <button class="layui-btn layui-btn-primary layui-border-blue" id="sendMsg">发送</button>
-                    <button type="button" class="layui-btn" id="img">
-                        <i class="layui-icon">&#xe67c;</i>上传图片
-                    </button>
                 </div>
             </div>
         </div>
@@ -230,57 +227,6 @@
             ; ws.close();
         }
 
-        function msgFunction(data) {
-            var msg = data.msg
-            switch (msg.msgType) {
-                case 1:
-                    if (who.id != msg.fromId) {
-                        $("#span" + msg.fromId).attr("class", "layui-badge");
-
-                        var longCount = friendCount['' + msg.fromId] + 1;
-                        friendCount['' + msg.fromId] = longCount;
-                        $("#span" + msg.fromId).html(longCount)
-                    } else {
-
-                        deleteMyFriendMsg()
-                    }
-                    friendChatMap.get("" + msg.fromId).push(JSON.stringify(msg))
-                    getChatArea()
-                    break
-                case 2:
-                    if (who.id != msg.toId) {
-                        $("#spanGroup" + msg.toId).attr("class", "layui-badge");
-                        var count = groupCount['' + msg.toId] + 1;
-                        groupCount['' + msg.toId] = count;
-                        $("#spanGroup" + msg.toId).html(count)
-                    } else {
-                        deleteMyGroupMsg()
-                    }
-                    groupChatMap.get("" + msg.toId).push(JSON.stringify(msg))
-                    getChatArea()
-                    break
-                case 3:
-                    getFriendApplication()
-                    break
-                case 5:
-                    break
-                case 9:
-                    layer.msg(msg.content)
-                    break
-                case 11:
-                    getUserAuthorities()
-                    break
-                case 12:
-                    getFriends()
-                    getFriendChat()
-                    break
-                case 14:
-                    groupAnnouncement.set("" + msg.toId, msg.content)
-                    break
-                case 15:
-                    getUser()
-            }
-        }
 
         /*
          *  聊天相关

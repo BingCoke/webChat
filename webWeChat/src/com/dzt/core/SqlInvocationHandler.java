@@ -47,7 +47,6 @@ public class SqlInvocationHandler implements InvocationHandler, MethodIntercepto
         ResultSet resultSet = null;
         PreparedStatement preparedStatement = null;
         try {
-
             if (dataSource != null){
                 connection = dataSource.getConnection();
                 connection.setAutoCommit(false);
@@ -198,8 +197,6 @@ public class SqlInvocationHandler implements InvocationHandler, MethodIntercepto
                 }
             }
             preparedStatement.execute();
-
-
 
         } catch (Exception e){
             System.out.println( method.getDeclaringClass().getName() +"的"+method.getName() +"----发生异常");

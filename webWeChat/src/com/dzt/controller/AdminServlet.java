@@ -116,7 +116,7 @@ public class AdminServlet extends MyServlet{
         PrintWriter writer = resp.getWriter();
         Admin admin = (Admin) req.getSession().getAttribute("admin");
         if (admin.getPower() != 1){
-            MyResult.build().setCode(308).setMsg("您没有权限去增加管理哦");
+            writer.write(MyResult.build().setCode(308).setMsg("您没有权限去增加管理哦").toJson());
         } else if (adminService.checkUser(username)){
             writer.write(MyResult.build().setMsg("用户名已经存在").setCode(308).toJson());
         } else if (PatternUtils.passwordCheck(password) && PatternUtils.usernameCheck(username)){

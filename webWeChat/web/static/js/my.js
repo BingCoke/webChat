@@ -105,10 +105,12 @@ function msgFunction(data) {
         case 12:
             getFriends()
             getFriendChat()
+            getUserAuthorities()
             break
         case 13:
             getGroups()
             getGroupChat()
+            getGroupAuthorities()
             break
         case 14:
             groupAnnouncement.set("" + msg.toId, msg.content)
@@ -254,6 +256,8 @@ function getFriendApplication() {
                     layer.msg(res.msg)
                     if(res.code == 200){
                         getFriends()
+                        getFriendChat()
+                        getUserAuthorities()
                     }
                 })
             })
@@ -332,13 +336,14 @@ function getFriends() {
 function getFriendChat() {
     $.get("/friend/getMyFriends", function (res) {
         $("#friendChat").empty()
-        for (var i = 0; i < res.data.length; i++) {
 
+        for (var i = 0; i < res.data.length; i++) {
             $("#friendChat").append(
                 '<li id="friend' + res.data[i].userId + '" >' +
                 '<img src="/img/' + res.data[i].profile + '" id="profile" class="layui-nav-img">' + res.data[i].remark + '<span id="span' + res.data[i].userId + '"></span>' +
                 '</li>'
             )
+            console.log(res.data[i].remark)
             $("#friend" + res.data[i].userId).attr("data", JSON.stringify(res.data[i]))
             $("#friend" + res.data[i].userId).click(function () {
                 $("#free").empty()

@@ -18,7 +18,7 @@ public class AdminServiceImpl implements AdminService {
     public Admin login(String username, String password) {
 
         List<Admin> admins = adminDao.selectExact("username", username);
-        if (admins.size() > 0  ){
+        if (admins.size() > 0 ){
             Admin admin = admins.get(0);
             if (admin != null && admin.getPassword().equals(DigestUtils.md5Hex(password))){
                 return admin;

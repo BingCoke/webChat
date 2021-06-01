@@ -12,6 +12,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpFilter;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.UUID;
 
@@ -23,8 +24,12 @@ public class TouristFilter extends HttpFilter {
     private UserService userService = BeanFactory.getBean(UserServiceImpl.class);
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        User user = userService.add(new User((UUID.randomUUID() + "").substring(0,15),("游客" + UUID.randomUUID()).substring(0,11),2));
-        ((HttpServletRequest)request).getSession().setAttribute("user",user);
+        HttpSession session = ((HttpServletRequest) request).getSession();
+        User tourist = (User) session.getAttribute("user");
+        if (tourist == null){
+            User user = userService.add(new User((UUID.randomUUID() + "").substring(0,15),("游客" + UUID.randomUUID()).substring(0,11),2));
+            session.setAttribute("user",user);
+        }
         chain.doFilter(request,response);
     }
 }

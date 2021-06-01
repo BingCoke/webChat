@@ -64,15 +64,16 @@ public class Msg {
              switch (msg.getMsgType()){
                  case 1:
                      Map map = (Map) httpSession.getAttribute("userAuthorities");
-                     int i = (int) map.get("" + msg.getToId());
-                     if (i == 1){
-                         Message message = new Message(0,this.user.getId(),9,"你已经被好友拉黑或者把好友拉黑，信息发送失败");
-                         this.session.getBasicRemote().sendText(MyResult.build().add("msg",message).toJson());
-                     } else if(!prService.isHaveRelationShip(msg.getFromId(),msg.getToId())){
+
+                     if(!prService.isHaveRelationShip(msg.getFromId(),msg.getToId())){
                          Message message = new Message(0,this.user.getId(),9,"你们已经不是好友了！消息发送失败");
                          this.session.getBasicRemote().sendText(MyResult.build().add("msg",message).toJson());
                      } else {
-                         if (webSocketMap.containsKey(msg.getToId())){
+                         int i = (int) map.get("" + msg.getToId());
+                         if (i == 1){
+                             Message message = new Message(0,this.user.getId(),9,"你已经被好友拉黑或者把好友拉黑，信息发送失败");
+                             this.session.getBasicRemote().sendText(MyResult.build().add("msg",message).toJson());
+                         } else if (webSocketMap.containsKey(msg.getToId())){
                              Msg toWeb = webSocketMap.get(msg.getToId());
                              toWeb.getSession().getBasicRemote().sendText(MyResult.build().add("msg",msg).toJson());
                          }
@@ -123,6 +124,7 @@ public class Msg {
 
      @OnClose
      public void onClose(){
+         httpSession.setAttribute("user",null);
          webSocketMap.remove(this.user.getId());
      }
 

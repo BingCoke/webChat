@@ -5,16 +5,17 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>创建管理员</title>
+    <link rel="stylesheet" href="../static/layui/css/layui.css">
 </head>
 
 <body>
 
-    <form id="register" onsubmit="return submitForm()">
+    <form id="register">
         用户名：<input type="text" name="username" id="username" required value=""><span id="usernameJudge"></span><br>
         密码：<input type="password" name="password" id="password" required><br>
         再次输入密码: <input type="password" name="passwordAgain" id="passwordAgain" required><span
             id="passwordJudge"></span><br>
-        <input type="submit" value="提交">
+        <input type="button" id="submit" value="提交">
     </form>
     <script src="../static/js/jquery.js"></script>
     <script src="../static/layui/layui.js"></script>
@@ -62,11 +63,16 @@
         password.addEventListener("keyup", judge)
         passwordAgain.addEventListener("keyup", judge)
 
+        $("#submit").click(function(){
+            submitForm()
+        })
+
         function submitForm(){
         if(password.value != passwordAgain.value || !/[a-zA-Z0-9_]{5,15}$/.test(username.value) || isHave || !/^(?![a-zA-Z]+$)(?![0-9]+$)[0-9A-Za-z\W]{6,18}$/.test(password.value)){
             alert("请检查信息填写的正确性")
         } else {
             $.post("/admin/register",$("#register").serialize(),function (data) {
+                console.log(data)
                     if (data.code == 200){
                         location.reload();
                     }
