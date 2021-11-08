@@ -50,6 +50,7 @@ public class AdminServlet extends MyServlet{
         for (String s : white) {
             if (pathInfo.equals(s)){
                 return true;
+                sotu11111
             }
         }
         HttpSession session = req.getSession();
